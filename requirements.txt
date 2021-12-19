@@ -1,0 +1,6 @@
+torch==1.10.1
+environs==9.3.5
+sentence_transformers==2.1.0
+fastapi==0.70.1
+uvicorn==0.16.0
+rank_bm25==0.2.1
