@@ -13,7 +13,7 @@ from typing import Optional, List
 import uvicorn
 
 
-from pre import preprocess
+from preprocess import preprocess
 from rank_bm25 import BM25Okapi
 import numpy as np
 
