@@ -137,7 +137,7 @@ def compute_bm(search : Search) -> dict:
         score = round(float(score), 4)
         if score == 0.0:
             continue
-        output.append((all_sentences_from_source[idx], all_paragraphs_from_source[idx], score, all_documents_from_source[idx]))
+        output.append({"Oración":all_sentences_from_source[idx], "Párrafo":all_paragraphs_from_source[idx], "Score":score, "Documento":all_documents_from_source[idx]})
 
     out = {}
     out['Resultados'] = output
