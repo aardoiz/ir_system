@@ -130,7 +130,7 @@ dmypy.json
 
 # Docs
 data/json/*.json
-data/pdfs/*.pdf
+data/pdfs/*/*.pdf
 data/pickle/*.pt
 data/pickle/*.pkl
 data/documentos_txt/*.txt
