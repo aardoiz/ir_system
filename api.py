@@ -1,21 +1,20 @@
 import pickle
+from typing import List, Optional
+
+import numpy as np
 import torch
-from torch import device, cuda
+import uvicorn
 from environs import Env
-from sentence_transformers import SentenceTransformer, util, CrossEncoder
 from fastapi import FastAPI, Form, Request
-from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-from typing import Optional, List
-import uvicorn
-
+from rank_bm25 import BM25Okapi
+from sentence_transformers import CrossEncoder, SentenceTransformer, util
+from torch import cuda, device
 
 from preprocess import preprocess
-from rank_bm25 import BM25Okapi
-import numpy as np
 
 env = Env()
 env.read_env()
