@@ -129,7 +129,8 @@ dmypy.json
 .pyre/
 
 # Docs
-json/
-pdfs/
-pickle/
-documentos_txt/
+data/json/*.json
+data/pdfs/*.pdf
+data/pickle/*.pt
+data/pickle/*.pkl
+data/documentos_txt/*.txt

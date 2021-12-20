@@ -17,4 +17,10 @@ Construcción de un sistema de Recuperación de Información
     
 - [ ] Creación de esquemas
 
+
+
+Docker:
+`
+docker run tfm --rm -v data/
+`
 # aardoiz_TFM
