@@ -1,12 +1,10 @@
 import pickle
-from typing import List, Optional
 
 import numpy as np
 import torch
 import uvicorn
 from environs import Env
-from fastapi import FastAPI, Form, Request
-from fastapi.encoders import jsonable_encoder
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
@@ -19,7 +17,7 @@ from preprocess import preprocess
 env = Env()
 env.read_env()
 
-super_path = '/media/alfonsoardoiz/DATA/aardoiz/data/'
+super_path = 'data/'
 
 embeddings = env.str("EMBEDDINGS", f"{super_path}pickle/embeddings.pt")
 sentences = env.str("SENTENCES", f"{super_path}pickle/sentences.pkl")
