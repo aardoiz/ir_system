@@ -20,10 +20,12 @@ import numpy as np
 env = Env()
 env.read_env()
 
-embeddings = env.str("EMBEDDINGS", "pickle/embeddings.pt")
-sentences = env.str("SENTENCES", "pickle/sentences.pkl")
-paragraphs = env.str("PARAGRAPHS", "pickle/paragraphs.pkl")
-documents = env.str("DOCUMENTS", "pickle/documents.pkl")
+super_path = '/media/alfonsoardoiz/DATA/aardoiz/data/'
+
+embeddings = env.str("EMBEDDINGS", f"{super_path}pickle/embeddings.pt")
+sentences = env.str("SENTENCES", f"{super_path}pickle/sentences.pkl")
+paragraphs = env.str("PARAGRAPHS", f"{super_path}pickle/paragraphs.pkl")
+documents = env.str("DOCUMENTS", f"{super_path}pickle/documents.pkl")
 
 sentence_transformers_model = env.str(
     "SENTENCE_TRANSFORMERS_MODEL",
@@ -98,7 +100,7 @@ def compute_input(search : Search) -> dict:
     input_embeddings = model.encode([search.query], convert_to_tensor=True)
     cosine_scores = util.pytorch_cos_sim(input_embeddings, all_embedding_from_source)
     best = torch.topk(cosine_scores, 7)
-    print(best)
+    
     output = []
     # best[0]-> Score de los topk resultados
     # best[1]-> Índice de los topk resultados (respecto al corpus)
@@ -191,7 +193,7 @@ def crossencoder(search : Search) -> dict:
     out = {}
     out["Resultados"]  = real_out
     # AHORA METEMOS CROSSENCODER  
-    print(out)
+    
     return  JSONResponse(content = out)
 
 
