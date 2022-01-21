@@ -133,4 +133,8 @@ data/json/*.json
 data/pdfs/*/*.pdf
 data/pickle/*.pt
 data/pickle/*.pkl
-data/documentos_txt/*.txt
+data/txt/*
+
+# Files in development 
+dev/*
+notebooks/*
