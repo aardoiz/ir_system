@@ -12,7 +12,7 @@ from rank_bm25 import BM25Okapi
 from sentence_transformers import CrossEncoder, SentenceTransformer, util
 from torch import cuda, device
 
-from preprocess import Preprocess
+from text_process import Preprocess
 
 
 class Search(BaseModel):
