@@ -1,5 +1,6 @@
 # libraries for text preprocessing
 import re
+
 import nltk
 from nltk.corpus import stopwords
 from nltk.stem import SnowballStemmer
@@ -10,7 +11,7 @@ nltk.download("stopwords")
 nltk.download("omw-1.4")
 
 
-def preprocess(text):
+def Preprocess(text):
     """
     For any text, this function does the following:
         Replace complex expression for unicode chars < >.
