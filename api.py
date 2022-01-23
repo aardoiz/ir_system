@@ -12,10 +12,12 @@ from rank_bm25 import BM25Okapi
 from sentence_transformers import CrossEncoder, SentenceTransformer, util
 from torch import cuda, device
 
-from preprocess import preprocess
+from preprocess import Preprocess
+
 
 class Search(BaseModel):
     query: str
+
 
 def read_pickle(pickle_file: str, object_type: str):
     """
@@ -77,10 +79,10 @@ cross = CrossEncoder(cross_encoder_model)
 
 # Okapi BM25
 tokenized_corpus_sentence = [
-    preprocess(doc).split(" ") for doc in all_sentences_from_source
+    Preprocess(doc).split(" ") for doc in all_sentences_from_source
 ]
 tokenized_corpus_paragraph = [
-    preprocess(doc).split(" ") for doc in all_paragraphs_from_source
+    Preprocess(doc).split(" ") for doc in all_paragraphs_from_source
 ]
 
 bm25_sentence = BM25Okapi(tokenized_corpus_sentence)
@@ -88,6 +90,7 @@ bm25_parragraph = BM25Okapi(tokenized_corpus_paragraph)
 
 
 # Main methods
+
 
 @app.get("/")
 def root():
@@ -135,7 +138,7 @@ def compute_bm(search: Search) -> dict:
     - Use BM25 to compute the socre between the query and each sentence.
     - Returns the 7 results with highest score.
     """
-    tokenized_query = preprocess(search.query).split(" ")
+    tokenized_query = Preprocess(search.query).split(" ")
 
     doc_scores_sentences = bm25_sentence.get_scores(tokenized_query)
     doc_scores_sentences = np.array(doc_scores_sentences)
@@ -182,7 +185,7 @@ def compute_crossencoder(search: Search) -> dict:
     - Compute the cross-encoder score for each concatenated string.
     - Re-arrange the order in base of the highest new scores.
     """
-    tokenized_query = preprocess(search.query).split(" ")
+    tokenized_query = Preprocess(search.query).split(" ")
 
     doc_scores_sentences = bm25_sentence.get_scores(tokenized_query)
     doc_scores_sentences = np.array(doc_scores_sentences)
