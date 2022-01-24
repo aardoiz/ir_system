@@ -23,21 +23,30 @@ model = SentenceTransformer(sentence_transformers_model)
 nlp = es_core_news_sm.load()
 
 
-document_list = []
 
-def process_pdfs(path):
+
+def process_pdfs(path:str):
+    """
+    Given a folder path, get the files inside it and for each pdf file do the following:
+        - Get all data information that is outside tables and images.
+        - Process all strings and deletes errors from the parser.
+        - Divide the data into sentences and do the following:  
+            - Calculate its embeddings using SBERT model
+            - Store the information in a Document object which includes subject, lesson, paragraph, sentence and embeddings
+    At the end, store all documents information into a pickle object to use it on the next step.
+    """
+
+    document_list = []
 
     asignatura = path[10:]
 
     folder = listdir(path)
 
-
     for pdf in folder:
-        tema = pdf[:-4]
-        print(tema)
-    # TODO:
-        
+        if pdf[-4:] != 'pdf':
+            continue
 
+        tema = pdf[:-4]
 
         fp = open(f'{path}/{pdf}', "rb")
         rsrcmgr = PDFResourceManager()
@@ -135,8 +144,9 @@ def process_pdfs(path):
                 )
                 document_list.append(a)
     
+    # Create the pkl to use in next step
+    with open("data/pickle/document_list.pkl", "wb") as f:
+        pickle.dump(document_list, f)
 
-"""process_pdfs('data/pdfs/edicion')
+process_pdfs('data/pdfs/edicion')
 
-with open("data/pickle/document_list.pkl", "wb") as f:
-    pickle.dump(document_list, f)"""

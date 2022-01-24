@@ -14,7 +14,7 @@ nltk.download("omw-1.4")
 stop_words = set(stopwords.words("spanish"))
 snowball = SnowballStemmer("spanish")
 
-def Preprocess(text):
+def Preprocess(text:str) -> str:
     """
     For any text, this function does the following:
         Replace complex expression for unicode chars < >.
