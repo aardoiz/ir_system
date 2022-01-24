@@ -129,12 +129,4 @@ dmypy.json
 .pyre/
 
 # Docs
-data/json/*.json
-data/pdfs/*/*.pdf
-data/pickle/*.pt
-data/pickle/*.pkl
-data/txt/*
 
-# Files in development 
-dev/*
-notebooks/*
