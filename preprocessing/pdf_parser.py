@@ -2,25 +2,17 @@ import pickle
 import re
 from os import listdir
 
-import es_core_news_sm
-from environs import Env
 from pdfminer.converter import PDFPageAggregator
 from pdfminer.layout import LAParams, LTTextBox
 from pdfminer.pdfinterp import PDFPageInterpreter, PDFResourceManager
 from pdfminer.pdfpage import PDFPage
 from sentence_transformers import SentenceTransformer
 
-from models.document import Document
+from models.segmentor import sentencizer
 
-env = Env()
 
-sentence_transformers_model = env.str(
-    "SENTENCE_TRANSFORMERS_MODEL",
-    "eduardofv/stsb-m-mt-es-distiluse-base-multilingual-cased-v1",
-)
+model = SentenceTransformer("eduardofv/stsb-m-mt-es-distiluse-base-multilingual-cased-v1")
 
-model = SentenceTransformer(sentence_transformers_model)
-nlp = es_core_news_sm.load()
 
 
 def process_pdfs(path:str):
@@ -39,9 +31,10 @@ def process_pdfs(path:str):
     asignatura = path[10:]
 
     folder = listdir(path)
-
+    
     for pdf in folder:
-        if pdf[-4:] != 'pdf':
+
+        if pdf[-4:] != '.pdf':
             continue
 
         tema = pdf[:-4]
@@ -123,25 +116,10 @@ def process_pdfs(path:str):
                     bien.append(a.strip())
                 b = ' '
 
-
-        
-
-        for element in bien:
-
-            doc = nlp(element)
-            for sent in doc.sents:
-
-                embeddings = model.encode(sent.text, convert_to_tensor=True)
-
-                a = Document(
-                    type=asignatura,
-                    document=tema,
-                    paragraph=element,
-                    sentence=sent.text,
-                    embedding=embeddings,
-                )
-                document_list.append(a)
-    
+        ea = sentencizer(bien, asignatura, tema)
+        document_list.extend(ea)
+    print(len(document_list))
+    print([(e.sentence, e.paragraph) for e in document_list[:100]])
     # Create the pkl to use in next step
     with open("data/pickle/document_list.pkl", "wb") as f:
         pickle.dump(document_list, f)
