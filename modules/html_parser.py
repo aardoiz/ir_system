@@ -2,7 +2,7 @@ import pickle
 
 import requests
 from bs4 import BeautifulSoup
-from tfm.preprocessing.models.segmentor import cleaner, sentencizer
+from models.segmentor import cleaner, sentencizer
 
 # TODO: Selector múltiple/lector de json
 
