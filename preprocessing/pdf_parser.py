@@ -2,25 +2,24 @@ import pickle
 import re
 from os import listdir
 
+from models.segmentor import sentencizer
 from pdfminer.converter import PDFPageAggregator
 from pdfminer.layout import LAParams, LTTextBox
 from pdfminer.pdfinterp import PDFPageInterpreter, PDFResourceManager
 from pdfminer.pdfpage import PDFPage
 from sentence_transformers import SentenceTransformer
 
-from models.segmentor import sentencizer
+model = SentenceTransformer(
+    "eduardofv/stsb-m-mt-es-distiluse-base-multilingual-cased-v1"
+)
 
 
-model = SentenceTransformer("eduardofv/stsb-m-mt-es-distiluse-base-multilingual-cased-v1")
-
-
-
-def process_pdfs(path:str):
+def process_pdfs(path: str):
     """
     Given a folder path, get the files inside it and do the following for each pdf file:
         - Get all data information that is outside tables and images.
         - Process all strings and deletes errors from the parser.
-        - Divide the data into sentences and do the following:  
+        - Divide the data into sentences and do the following:
             - Calculate its embeddings using SBERT model
             - Store the information in a Document object which includes subject, lesson, paragraph, sentence and embeddings
     At the end, store all documents information into a pickle object to use it on the next step.
@@ -31,15 +30,15 @@ def process_pdfs(path:str):
     asignatura = path[10:]
 
     folder = listdir(path)
-    
+
     for pdf in folder:
 
-        if pdf[-4:] != '.pdf':
+        if pdf[-4:] != ".pdf":
             continue
 
         tema = pdf[:-4]
 
-        fp = open(f'{path}/{pdf}', "rb")
+        fp = open(f"{path}/{pdf}", "rb")
         rsrcmgr = PDFResourceManager()
         laparams = LAParams()
         device = PDFPageAggregator(rsrcmgr, laparams=laparams)
@@ -82,7 +81,6 @@ def process_pdfs(path:str):
             # print(pagina)
             resultado.append(pagina)
 
-
         # Post-procesado
         no_blanks = []
         for pagina in resultado:
@@ -91,22 +89,19 @@ def process_pdfs(path:str):
                     clean = re.sub("•", "", parrafo).strip()
                     no_blanks.append(clean)
 
-
-
         b = None
         bien = []
-        for i,a in enumerate(no_blanks):
-            if i == 0 :
+        for i, a in enumerate(no_blanks):
+            if i == 0:
                 b = a
                 continue
-            
-                
-            nums = re.sub('([\d%,\.])+','',a).strip()
+
+            nums = re.sub("([\d%,\.])+", "", a).strip()
             if len(nums) < 1:
                 continue
-                
+
             if b[-1].islower() or len(b) == 1:
-                b = f'{b} {a}'
+                b = f"{b} {a}"
 
             if not a[-1].islower():
                 if a in b:
@@ -114,7 +109,7 @@ def process_pdfs(path:str):
                 else:
                     bien.append(b.strip())
                     bien.append(a.strip())
-                b = ' '
+                b = " "
 
         ea = sentencizer(bien, asignatura, tema)
         document_list.extend(ea)
@@ -124,5 +119,5 @@ def process_pdfs(path:str):
     with open("data/pickle/document_list.pkl", "wb") as f:
         pickle.dump(document_list, f)
 
-process_pdfs('data/pdfs/edicion')
 
+process_pdfs("data/pdfs/edicion")

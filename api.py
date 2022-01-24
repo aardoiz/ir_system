@@ -9,8 +9,8 @@ from rank_bm25 import BM25Okapi
 from sentence_transformers import CrossEncoder, SentenceTransformer, util
 from torch import cuda, device
 
-from preprocessing.models.text_process import Preprocess
 from database.access_db import Get_data_from_db
+from preprocessing.models.text_process import Preprocess
 
 
 class Search(BaseModel):
@@ -32,21 +32,19 @@ print(f"Device selected: {device}")
 
 
 # Semantic Searcher
-all_documents_ , all_paragraphs_, all_sentences_ ,all_embedding_  = Get_data_from_db()
+all_documents_, all_paragraphs_, all_sentences_, all_embedding_ = Get_data_from_db()
 
 
-sentence_transformers_model = "eduardofv/stsb-m-mt-es-distiluse-base-multilingual-cased-v1"
+sentence_transformers_model = (
+    "eduardofv/stsb-m-mt-es-distiluse-base-multilingual-cased-v1"
+)
 cross_encoder_model = "cross-encoder/ms-marco-MiniLM-L-2-v2"
 model = SentenceTransformer(sentence_transformers_model)
 cross = CrossEncoder(cross_encoder_model)
 
 # Okapi BM25
-tokenized_corpus_sentence = [
-    Preprocess(doc).split(" ") for doc in all_sentences_ 
-]
-tokenized_corpus_paragraph = [
-    Preprocess(doc).split(" ") for doc in all_paragraphs_ 
-]
+tokenized_corpus_sentence = [Preprocess(doc).split(" ") for doc in all_sentences_]
+tokenized_corpus_paragraph = [Preprocess(doc).split(" ") for doc in all_paragraphs_]
 
 bm25_sentence = BM25Okapi(tokenized_corpus_sentence)
 bm25_parragraph = BM25Okapi(tokenized_corpus_paragraph)
@@ -67,7 +65,7 @@ def compute_sbert(search: Search) -> dict:
     - Get the 7 phrases with highest similarity score.
     """
     input_embeddings = model.encode([search.query], convert_to_tensor=True)
-    cosine_scores = util.cos_sim(input_embeddings, all_embedding_ )
+    cosine_scores = util.cos_sim(input_embeddings, all_embedding_)
     best = torch.topk(cosine_scores, 7)
 
     output = []
@@ -78,10 +76,10 @@ def compute_sbert(search: Search) -> dict:
         idx = int(idx)
         output.append(
             {
-                "Oración": all_sentences_ [idx],
-                "Párrafo": all_paragraphs_ [idx],
+                "Oración": all_sentences_[idx],
+                "Párrafo": all_paragraphs_[idx],
                 "Score": score,
-                "Documento": all_documents_ [idx],
+                "Documento": all_documents_[idx],
             },
         )
 
@@ -122,10 +120,10 @@ def compute_bm(search: Search) -> dict:
             continue
         output.append(
             {
-                "Oración": all_sentences_ [idx],
-                "Párrafo": all_paragraphs_ [idx],
+                "Oración": all_sentences_[idx],
+                "Párrafo": all_paragraphs_[idx],
                 "Score": score,
-                "Documento": all_documents_ [idx],
+                "Documento": all_documents_[idx],
             }
         )
 
@@ -169,10 +167,10 @@ def compute_crossencoder(search: Search) -> dict:
             continue
         output.append(
             {
-                "Oración": all_sentences_ [idx],
-                "Párrafo": all_paragraphs_ [idx],
+                "Oración": all_sentences_[idx],
+                "Párrafo": all_paragraphs_[idx],
                 "Score": score,
-                "Documento": all_documents_ [idx],
+                "Documento": all_documents_[idx],
             },
         )
 

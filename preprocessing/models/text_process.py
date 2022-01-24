@@ -13,7 +13,8 @@ nltk.download("omw-1.4")
 stop_words = set(stopwords.words("spanish"))
 snowball = SnowballStemmer("spanish")
 
-def Preprocess(text:str) -> str:
+
+def Preprocess(text: str) -> str:
     """
     For any text, this function does the following:
         Replace complex expression for unicode chars < >.
@@ -22,7 +23,6 @@ def Preprocess(text:str) -> str:
         Take out stopwords and get the stemma for each word.
     """
 
-    
     text = re.sub("&lt;/?", "<", text)
     text = re.sub("&gt;", ">", text)
     text = re.sub("(\d|\.|,)+", " ", text)
