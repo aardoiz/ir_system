@@ -27,3 +27,5 @@ base_datos = db.apuntes
 
 result = base_datos.insert_many(docs_dict)
 # añadir datos
+
+print('You should delete pkl file')
