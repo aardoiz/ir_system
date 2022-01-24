@@ -6,7 +6,7 @@ Máster: Letras Digitales UCM
 Título: Construcción de un SRI de dominio general
 
 ## Pasos a seguir
-0. Crear un entorno virtual nuevo y activarlo
+0. (Opcional) Crear un entorno virtual nuevo y activarlo
 
 1. Clonar este repositorio y colocarse en su carpeta principal
 ```
@@ -21,6 +21,11 @@ curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poet
 3. Una vez instalado poetry inicializarlo usando poetry install
 ```
 poetry install
+```
+
+3.1 Si queremos usar el procesador de pdfs hay que instalar una dependencia extra con pip
+```
+pip install pdfminer.six
 ```
 
 4. Para probar el buscador, hay que ejecutar el archivo api.py con pyhton
