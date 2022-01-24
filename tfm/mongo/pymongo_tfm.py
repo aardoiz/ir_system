@@ -2,16 +2,12 @@ import pickle
 
 from pymongo import MongoClient
 
+
 # url de la base de datos
 cluster = "mongodb+srv://aardoiz:M0nG0!_@cluster0.wx3m9.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
 # conectamos a mongo
 client = MongoClient(cluster)
-
-print(client.list_database_names())
-
 db = client.tfm_data
-
-print(db.list_collection_names())
 
 with open("data/pickle/document_list.pkl", "rb") as f:
     docs = pickle.load(f)

@@ -9,9 +9,7 @@ from pdfminer.pdfinterp import PDFPageInterpreter, PDFResourceManager
 from pdfminer.pdfpage import PDFPage
 from sentence_transformers import SentenceTransformer
 
-model = SentenceTransformer(
-    "eduardofv/stsb-m-mt-es-distiluse-base-multilingual-cased-v1"
-)
+model = SentenceTransformer("eduardofv/stsb-m-mt-es-distiluse-base-multilingual-cased-v1")
 
 
 def process_pdfs(path: str):
@@ -113,8 +111,7 @@ def process_pdfs(path: str):
 
         ea = sentencizer(bien, asignatura, tema)
         document_list.extend(ea)
-    print(len(document_list))
-    print([(e.sentence, e.paragraph) for e in document_list[:100]])
+
     # Create the pkl to use in next step
     with open("data/pickle/document_list.pkl", "wb") as f:
         pickle.dump(document_list, f)

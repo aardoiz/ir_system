@@ -9,7 +9,7 @@ from rank_bm25 import BM25Okapi
 from sentence_transformers import CrossEncoder, SentenceTransformer, util
 from torch import cuda, device
 
-from database.access_db import Get_data_from_db
+from mongo.access_db import Get_data_from_db
 from preprocessing.models.text_process import Preprocess
 
 
