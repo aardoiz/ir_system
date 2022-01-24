@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "IR_System"
+version = "1.0"
+description = "Information Retrieval System designed as part of Alfonso Ardoiz TFM"
+authors = ["aardoiz"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+torch = "1.10.1"
+environs = "9.3.5"
+sentence_transformers = "2.1.0"
+fastapi = "0.70.1"
+uvicorn = "0.16.0"
+rank_bm25 = "0.2.1"
+bs4 = "^0.0.1"
+pymongo = {version = "^4.0.1", extras = ["srv"]}
+es-core-news-sm = "^3.1.0"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
