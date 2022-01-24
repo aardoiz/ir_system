@@ -129,8 +129,5 @@ dmypy.json
 .pyre/
 
 # Docs
-data/
-
-# Files in development 
-dev/
-notebooks/
+*.pdf
+*.pkl
