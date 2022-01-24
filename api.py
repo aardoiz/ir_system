@@ -10,7 +10,7 @@ from sentence_transformers import CrossEncoder, SentenceTransformer, util
 from torch import cuda, device
 
 from preprocessing.models.text_process import Preprocess
-from database.access_db import Get_all_data
+from database.access_db import Get_data_from_db
 
 
 class Search(BaseModel):
@@ -32,7 +32,7 @@ print(f"Device selected: {device}")
 
 
 # Semantic Searcher
-all_documents_ , all_paragraphs_, all_sentences_ ,all_embedding_  = Get_all_data()
+all_documents_ , all_paragraphs_, all_sentences_ ,all_embedding_  = Get_data_from_db()
 
 
 sentence_transformers_model = "eduardofv/stsb-m-mt-es-distiluse-base-multilingual-cased-v1"
@@ -63,8 +63,8 @@ def compute_sbert(search: Search) -> dict:
     """
     This method does the following steps:
     - Get the embedding of the input query using a S-BERT models.
-    - Calculates the cosine distance between this embedding and all embeddings pre-computed from the corpus.
-    - Get the 7 phrases which similarity scored highest.
+    - Calculate the cosine distance between this embedding and all embeddings pre-computed from the corpus.
+    - Get the 7 phrases with highest similarity score.
     """
     input_embeddings = model.encode([search.query], convert_to_tensor=True)
     cosine_scores = util.cos_sim(input_embeddings, all_embedding_ )
@@ -96,8 +96,8 @@ def compute_bm(search: Search) -> dict:
     This method does the following steps:
     - Process the query to get all keywords
     - Compare this list of keywords with pre-processed corpus sentences and paragraphs.
-    - Use BM25 to compute the socre between the query and each sentence.
-    - Returns the 7 results with highest score.
+    - Use BM25 to compute the score between the query and each sentence.
+    - Returns the top-7.
     """
     tokenized_query = Preprocess(search.query).split(" ")
 
@@ -140,8 +140,8 @@ def compute_crossencoder(search: Search) -> dict:
     This method does the following steps:
     - Process the query to get all keywords
     - Compare this list of keywords with pre-processed corpus sentences and paragraphs.
-    - Use BM25 to compute the socre between the query and each sentence.
-    - Returns the 7 results with highest score.
+    - Use BM25 to compute the score between the query and each sentence.
+    - Return the top-7 results.
     - Create a list of strings concatenating the query and each one of the BM25 results.
     - Compute the cross-encoder score for each concatenated string.
     - Re-arrange the order in base of the highest new scores.

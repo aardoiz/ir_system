@@ -4,7 +4,6 @@ import re
 import nltk
 from nltk.corpus import stopwords
 from nltk.stem import SnowballStemmer
-from nltk.stem.wordnet import WordNetLemmatizer
 
 nltk.download("wordnet")
 nltk.download("stopwords")

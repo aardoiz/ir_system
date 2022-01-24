@@ -23,11 +23,9 @@ model = SentenceTransformer(sentence_transformers_model)
 nlp = es_core_news_sm.load()
 
 
-
-
 def process_pdfs(path:str):
     """
-    Given a folder path, get the files inside it and for each pdf file do the following:
+    Given a folder path, get the files inside it and do the following for each pdf file:
         - Get all data information that is outside tables and images.
         - Process all strings and deletes errors from the parser.
         - Divide the data into sentences and do the following:  

@@ -1,5 +1,5 @@
 from pymongo import MongoClient
-from torch import Tensor
+from typing import List, Union
 
 
 cluster = "mongodb+srv://aardoiz:M0nG0!_@cluster0.wx3m9.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
@@ -7,7 +7,10 @@ cluster = "mongodb+srv://aardoiz:M0nG0!_@cluster0.wx3m9.mongodb.net/myFirstDatab
 client = MongoClient(cluster)
 
 cursor = client.tfm_data.apuntes.find({})
-def Get_all_data():
+def Get_data_from_db() -> Union[List[str], List[str], List[str], List[List]] :
+    """
+    Use cursor to store data from db in python lists and use it elsewhere.
+    """
 
     list_of_documents = []
     list_of_paragraphs = []
