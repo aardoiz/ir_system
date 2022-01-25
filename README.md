@@ -23,7 +23,7 @@ curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poet
 poetry install
 ```
 
-3.1 Si queremos usar el procesador de pdfs hay que instalar una dependencia extra con pip
+3. 1. Si queremos usar el procesador de pdfs hay que instalar una dependencia extra con pip
 ```
 pip install pdfminer.six
 ```
@@ -40,6 +40,25 @@ http://localhost:8425/docs
 
 6. En el front vemos que hay 4 métodos: 1 GET, y 3 POST. Cada uno de los post es un tipo de buscador. Para acceder a ellos, hay que pinchar encima y se abrirá un panel verde. En primer lugar hay una explicación del método; y para probarlo hay que pulsar el botón de "try it out".
 Al pulsarlo se nos abrirá un espacio donde escribir con una "query" de prueba; simplemente tenemos remplazar "string" por lo que queramos buscar. Los resultados aparecen más abajo en la página debajo de "code" y "details".
+
+## Esquema de funcionamiento
+
+#### Proyecto
+[WIP]
+
+#### Núcleo Central (SRI)
+[WIP]
+
+#### Pre-procesado de documentos
+En el preprocesamiento, hay dos módulos principales. El "parser" de archivos pdf y el de archivos html.
+
+![Pre-procesamiento](data/img/Text_Parser.png?raw=true "Módulo de pre-procesado de documentos")
+
+El output de cada "parser" es una lista de objectos "Document". Cada Document se compone de lo siguiente:
+![Document](data/img/Document_Object.png?raw=true "Objeto Document")
+
+#### Base de datos - MongoDB
+[WIP]
 
 ## Datos actuales
 En el buscador de momento solo están cargados los apuntes de las asignaturas de Edición y OIM del máster.
