@@ -56,6 +56,8 @@ En el preprocesamiento, hay dos módulos principales. El "parser" de archivos pd
 
 El output de cada "parser" es una lista de objectos "Document". Cada Document se compone de lo siguiente:
 ![Document](data/img/Document_Object.png?raw=true "Objeto Document")
+Donde type corresponde a la asignatura, document al tema, y embedding a la representación numérica de la oración salida del modelo S-BERT.
+
 
 #### Base de datos - MongoDB
 [WIP]
