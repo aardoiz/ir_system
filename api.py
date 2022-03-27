@@ -10,6 +10,7 @@ from sentence_transformers import CrossEncoder, SentenceTransformer, util
 from torch import cuda, device
 
 from modules.access_db import Get_data_from_db
+from modules.local_db import Get_local_data
 from modules.models.text_process import Preprocess
 
 
@@ -32,7 +33,10 @@ print(f"Device selected: {device}")
 
 
 # Semantic Searcher
+
+#ToDo: Arrglar esto
 all_documents_, all_paragraphs_, all_sentences_, all_embedding_ = Get_data_from_db()
+# all_documents_, all_paragraphs_, all_sentences_, all_embedding_ = Get_local_data()
 
 
 sentence_transformers_model = (

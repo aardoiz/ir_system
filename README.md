@@ -15,8 +15,9 @@ git clone git@github.com:aardoiz/ir_system.git
 
 2. Instalar poetry
 ```
-curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
+curl -sSL https://install.python-poetry.org | python3 -
 ```
+
 
 3. Una vez instalado poetry inicializarlo usando poetry install
 ```
