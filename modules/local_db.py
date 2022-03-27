@@ -1,18 +1,13 @@
 from typing import List, Union
 import pickle
 from modules.models.text_process import eval_preproces
-from sentence_transformers import SentenceTransformer, util
-from time import time
 
 
 with open('eval/data/datos_sqac.pkl', 'rb') as f:
     data = pickle.load(f)
 
-with open('eval/data/embbedings.pkl', 'rb') as fl:
+with open('eval/data/embeddings_sqac.pkl', 'rb') as fl:
     emb = pickle.load(fl)
-
-sentence_transformers_model = ("eduardofv/stsb-m-mt-es-distiluse-base-multilingual-cased-v1")
-model = SentenceTransformer(sentence_transformers_model)
 
 
 def Get_local_data() -> Union[List[str], List[str], List[str], List[List]]:
