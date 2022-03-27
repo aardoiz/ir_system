@@ -147,7 +147,9 @@ with open ('eval/data/resultados_bm25.pkl', 'wb') as f:
 
 # Sacar los resultados para el Cross-encoder
 resultados = []
-for index, question in enumerate(questions_eval[:1]):
+for index, question in enumerate(questions_eval):
+    if index in [31, 118, 1376, 3090]:
+        continue
     question = question[1:-1] #quitamos '?' y '¿'
     ans = compute_crossencoder(question)
     resultados.append(results_eval(index = index, question=question, bm_response=ans))
