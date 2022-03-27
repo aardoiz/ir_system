@@ -30,8 +30,8 @@ sentence_transformers_model = (
     "eduardofv/stsb-m-mt-es-distiluse-base-multilingual-cased-v1"
 )
 cross_encoder_model = "cross-encoder/ms-marco-MiniLM-L-2-v2"
-model = SentenceTransformer(sentence_transformers_model)
-cross = CrossEncoder(cross_encoder_model)
+model = SentenceTransformer(sentence_transformers_model, device=device)
+cross = CrossEncoder(cross_encoder_model, device=device)
 
 # Okapi BM25
 tokenized_corpus_sentence = [Preprocess(doc).split(" ") for doc in all_sentences_]
@@ -114,7 +114,7 @@ def compute_crossencoder(search: Search) -> dict:
             },
         )
 
-    combinations = [[search.query, sen["Oración"]] for sen in output]
+    combinations = [[search, sen["Oración"]] for sen in output]
 
     sim_score = cross.predict(combinations)
     sim_score_argsort = reversed(np.argsort(sim_score))
@@ -122,18 +122,9 @@ def compute_crossencoder(search: Search) -> dict:
 
     real_out = []
     for idx in sim_score_argsort:
-        real_out.append(
-            {
-                "Oración": output[idx]["Oración"],
-                "Documento": output[idx]["Documento"],
-            }
-        )
+        real_out.append(output[idx]["Documento"])
 
-    out = {}
-    out["Resultados"] = real_out
-    # AHORA METEMOS CROSSENCODER
-
-    return out
+    return real_out
 
 
 class results_eval(BaseModel):
@@ -151,4 +142,15 @@ for index, question in enumerate(questions_eval):
     resultados.append(results_eval(index = index, question=question, bm_response=ans))
 
 with open ('eval/data/resultados_bm25.pkl', 'wb') as f:
+    pickle.dump(resultados, f)
+
+
+# Sacar los resultados para el Cross-encoder
+resultados = []
+for index, question in enumerate(questions_eval[:1]):
+    question = question[1:-1] #quitamos '?' y '¿'
+    ans = compute_crossencoder(question)
+    resultados.append(results_eval(index = index, question=question, bm_response=ans))
+
+with open ('eval/data/resultados_cross.pkl', 'wb') as f:
     pickle.dump(resultados, f)
