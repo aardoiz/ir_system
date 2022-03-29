@@ -8,7 +8,7 @@ from sentence_transformers import CrossEncoder, SentenceTransformer, util
 from torch import cuda, device
 from typing import List
 
-from modules.local_db import Get_local_data
+from modules.local_db import Get_local_data, Get_enhanced_data
 from modules.models.text_process import Preprocess
 
 
@@ -23,8 +23,8 @@ print(f"Device selected: {device}")
 
 #ToDo: Arrglar esto
 
-all_documents_, all_paragraphs_, all_sentences_, all_embedding_, questions_eval = Get_local_data()
-
+#all_documents_, all_paragraphs_, all_sentences_, all_embedding_, questions_eval = Get_local_data()
+all_documents_, all_paragraphs_, all_sentences_, all_embedding_, questions_eval = Get_enhanced_data()
 
 sentence_transformers_model = (
     "eduardofv/stsb-m-mt-es-distiluse-base-multilingual-cased-v1"
@@ -73,6 +73,30 @@ def compute_bm(search: Search) -> dict:
         output.append(all_documents_[idx])
 
     return output
+
+
+def compute_bm_enhanced(search: Search) -> dict:
+
+    tokenized_query = Preprocess(search).split(" ")
+
+    doc_scores_sentences = torch.tensor(bm25_sentence.get_scores(tokenized_query))
+
+    # Aquí sacamos las score totales con la suma de los dos parámetros combinados
+
+    best = torch.topk(doc_scores_sentences, 100)
+    output = []
+    for score, idx in zip(best[0], best[1]):
+        idx = int(idx)
+        output.append(all_documents_[idx])
+    
+    new = []
+    for x in output:
+        if x not in new:
+            new.append(x)
+        if len(new) > 19:
+            break
+
+    return new
 
 
 def compute_crossencoder(search: Search) -> dict:
@@ -138,15 +162,15 @@ class results_eval(BaseModel):
 resultados = []
 for index, question in enumerate(questions_eval):
     question = question[1:-1] #quitamos '?' y '¿'
-    ans = compute_bm(question)
+    ans = compute_bm_enhanced(question)
     resultados.append(results_eval(index = index, question=question, bm_response=ans))
 
-with open ('eval/data/resultados_bm25.pkl', 'wb') as f:
+with open ('eval/data/resultados_enhanced_bm25.pkl', 'wb') as f:
     pickle.dump(resultados, f)
 
 
 # Sacar los resultados para el Cross-encoder
-resultados = []
+"""resultados = []
 for index, question in enumerate(questions_eval):
     if index in [31, 118, 1376, 3090]:
         continue
@@ -155,4 +179,4 @@ for index, question in enumerate(questions_eval):
     resultados.append(results_eval(index = index, question=question, bm_response=ans))
 
 with open ('eval/data/resultados_cross.pkl', 'wb') as f:
-    pickle.dump(resultados, f)
+    pickle.dump(resultados, f)"""

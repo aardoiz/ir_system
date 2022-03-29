@@ -35,8 +35,8 @@ print(f"Device selected: {device}")
 # Semantic Searcher
 
 #ToDo: Arrglar esto
-all_documents_, all_paragraphs_, all_sentences_, all_embedding_ = Get_data_from_db()
-# all_documents_, all_paragraphs_, all_sentences_, all_embedding_ = Get_local_data()
+#all_documents_, all_paragraphs_, all_sentences_, all_embedding_ = Get_data_from_db()
+all_documents_, all_paragraphs_, all_sentences_, all_embedding_, _ = Get_local_data()
 
 
 sentence_transformers_model = (
