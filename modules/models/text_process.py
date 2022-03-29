@@ -32,3 +32,11 @@ def Preprocess(text: str) -> str:
     text = " ".join([snowball.stem(word) for word in text if not word in stop_words])
 
     return text
+
+
+def eval_preproces(text:str)->str:
+    text = re.sub(r"\\n", " ", text)
+    text = re.sub(r"[><]", " ", text)
+    text = re.sub(r"[^a-zA-Z ,.;:áéíóúãñüÁÉÍçÇÑÓÚ\d]", "", text)
+    
+    return text

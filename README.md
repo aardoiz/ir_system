@@ -15,8 +15,9 @@ git clone git@github.com:aardoiz/ir_system.git
 
 2. Instalar poetry
 ```
-curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
+curl -sSL https://install.python-poetry.org | python3 -
 ```
+
 
 3. Una vez instalado poetry inicializarlo usando poetry install
 ```
@@ -56,7 +57,12 @@ En el preprocesamiento, hay dos módulos principales. El "parser" de archivos pd
 
 El output de cada "parser" es una lista de objectos "Document". Cada Document se compone de lo siguiente:
 ![Document](data/img/Document_Object.png?raw=true "Objeto Document")
-Donde type corresponde a la asignatura, document al tema, y embedding a la representación numérica de la oración salida del modelo S-BERT.
+
+"type" -> asignatura
+
+"document" -> tema 
+
+"embedding" -> representación numérica de la oración procesada usando S-BERT.
 
 
 #### Base de datos - MongoDB
