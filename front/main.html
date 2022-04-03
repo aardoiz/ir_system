@@ -19,18 +19,13 @@
 
                 <v-container>
                     <v-col cols="2">
-                        <v-sheet rounded="lg">
-                            <div class="my-3">Escribe tu búsqueda</div>
-                            <v-divider></v-divider>
-                            <div class="my-6">
-                                <v-text-field label="busqueda" v-model="busqueda.query" dense outlined></v-text-field>
-                            </div>
-                            <div class="my-3">
-                                <v-btn text color="purple" @click="call_api">Buscar texto</v-btn>
-                            </div>
+                        <v-sheet color="white" rounded>
+                            <v-text-field label="busqueda" v-model="busqueda.query" dense outlined></v-text-field>
+                            <v-btn text color="purple" @click="call_api">Buscar texto</v-btn>
+
                         </v-sheet>
                     </v-col>
-                    <v-col>
+                    <v-col class="con_margen">
                         <v-sheet min-height="70vh" rounded="lg">
                             <h1 v-if="resultados">Documentos más relevantes</h1>
                             <ul>
@@ -44,7 +39,7 @@
                                     {{ item.Oración }}
                                 </li>
                             </ul>
-                        </v-sheet>    
+                        </v-sheet>
                     </v-col>
                 </v-container>
             </v-main>
@@ -67,19 +62,24 @@
                 }
             },
             methods: {
+                
                 call_api: function () {
 
                     axios.post("/bm25", this.busqueda)
                         .then(resp => this.resultados = resp.data.Resultados)
                         .catch(error => console.log(error))
                 },
+                
             },
         })
     </script>
+
     <style>
-        #main {
-            margin-right: 400px;
-            margin-left: 20px;
+        .con_margen h1,
+        h2,
+        li {
+            margin: 20px;
+            padding: auto;
         }
     </style>
 </body>
