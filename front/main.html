@@ -1,0 +1,87 @@
+<html lang="en">
+
+<head>
+    <title>TFM - Alfonso Ardoiz</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+</head>
+
+<body>
+    <div id="app">
+        <v-app>
+            <v-app-bar app dense dark color="green">
+                <v-app-bar-title>TFM - Alfonso Ardoiz - Information Retrieval System</v-app-bar-title>
+            </v-app-bar>
+            <v-main class="grey lighten-3">
+
+                <v-container>
+                    <v-col cols="2">
+                        <v-sheet rounded="lg">
+                            <div class="my-3">Escribe tu búsqueda</div>
+                            <v-divider></v-divider>
+                            <div class="my-6">
+                                <v-text-field label="busqueda" v-model="busqueda.query" dense outlined></v-text-field>
+                            </div>
+                            <div class="my-3">
+                                <v-btn text color="purple" @click="call_api">Buscar texto</v-btn>
+                            </div>
+                        </v-sheet>
+                    </v-col>
+                    <v-col>
+                        <v-sheet min-height="70vh" rounded="lg">
+                            <h1 v-if="resultados">Documentos más relevantes</h1>
+                            <ul>
+                                <li v-for="item in resultados">
+                                    {{ item.Párrafo }}
+                                </li>
+                            </ul>
+                            <h2 v-if="resultados">Párrafos</h2>
+                            <ul>
+                                <li v-for="item in resultados">
+                                    {{ item.Oración }}
+                                </li>
+                            </ul>
+                        </v-sheet>    
+                    </v-col>
+                </v-container>
+            </v-main>
+        </v-app>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        new Vue({
+            el: '#app',
+            vuetify: new Vuetify(),
+            data: function () {
+                return {
+                    busqueda:
+                    {
+                        "query": "Me gustan las lechugas"
+                    },
+                    resultados: null
+                }
+            },
+            methods: {
+                call_api: function () {
+
+                    axios.post("/bm25", this.busqueda)
+                        .then(resp => this.resultados = resp.data.Resultados)
+                        .catch(error => console.log(error))
+                },
+            },
+        })
+    </script>
+    <style>
+        #main {
+            margin-right: 400px;
+            margin-left: 20px;
+        }
+    </style>
+</body>
+
+</html>

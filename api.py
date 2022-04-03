@@ -3,7 +3,7 @@ import torch
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from pydantic import BaseModel
 from rank_bm25 import BM25Okapi
 from sentence_transformers import CrossEncoder, SentenceTransformer, util
@@ -55,10 +55,14 @@ bm25_parragraph = BM25Okapi(tokenized_corpus_paragraph)
 
 
 # Main methods
-@app.get("/")
+@app.get("/app")
 def root():
-    return {"message": "Hello"}
+    return FileResponse("./front/main.html")
 
+
+@app.get('/favicon.ico')
+async def favicon():
+    return FileResponse("./front/favicon.ico")
 
 @app.post("/semantic_similarity")
 def compute_sbert(search: Search) -> dict:
