@@ -107,6 +107,14 @@ def compute_bm(search: Search) -> dict:
     """
     tokenized_query = Preprocess(search.query).split(" ")
 
+    regex = ''
+    for i,tok in enumerate(tokenized_query):
+        if i != len(tokenized_query)-1:
+            tok = f'{tok}|'
+        else:
+            tok = f'{tok}'
+        regex += tok
+
     doc_scores_sentences = bm25_sentence.get_scores(tokenized_query)
     doc_scores_sentences = np.array(doc_scores_sentences)
     # sentence_weigth = 1
@@ -132,6 +140,7 @@ def compute_bm(search: Search) -> dict:
                 "Párrafo": all_paragraphs_[idx],
                 "Score": score,
                 "Documento": all_documents_[idx],
+                "regex": regex
             }
         )
 
@@ -153,6 +162,8 @@ def compute_crossencoder(search: Search) -> dict:
     - Re-arrange the order in base of the highest new scores.
     """
     tokenized_query = Preprocess(search.query).split(" ")
+
+
 
     doc_scores_sentences = bm25_sentence.get_scores(tokenized_query)
     doc_scores_sentences = np.array(doc_scores_sentences)
