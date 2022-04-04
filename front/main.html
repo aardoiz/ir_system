@@ -29,13 +29,13 @@
                         <v-sheet min-height="70vh" rounded="lg">
                             <h1 v-if="resultados">Documentos más relevantes</h1>
                             <ul>
-                                <li v-for="item in resultados">
+                                <li v-for="item in resultados" :key="item.Documento">
                                     {{ item.Párrafo }}
                                 </li>
                             </ul>
                             <h2 v-if="resultados">Párrafos</h2>
                             <ul>
-                                <li v-for="item in resultados">
+                                <li v-for="item in resultados" :key="item.Documento">
                                     {{ item.Oración }}
                                 </li>
                             </ul>
@@ -58,18 +58,24 @@
                     {
                         "query": "Me gustan las lechugas"
                     },
-                    resultados: null
+                    resultados: null,
+                    regex: null,
                 }
             },
             methods: {
-                
+
                 call_api: function () {
 
                     axios.post("/bm25", this.busqueda)
                         .then(resp => this.resultados = resp.data.Resultados)
+                        .then(resp => this.regex = resp.data.regex)
                         .catch(error => console.log(error))
                 },
-                
+                myFunction: function () {
+                    return text.replace(new RegExp(this.regex, "gi"), (match) => `<mark>${match}</mark>`);
+
+                }
+
             },
         })
     </script>

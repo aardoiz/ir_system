@@ -36,7 +36,7 @@ python3 api.py
 
 5. Abrir el navegador y escribir lo siguiente para ir al front temporal (hasta que prepare algo más profesional):
 ```
-http://localhost:8425/docs
+http://localhost:8425/app
 ```
 
 6. En el front vemos que hay 4 métodos: 1 GET, y 3 POST. Cada uno de los post es un tipo de buscador. Para acceder a ellos, hay que pinchar encima y se abrirá un panel verde. En primer lugar hay una explicación del método; y para probarlo hay que pulsar el botón de "try it out".
