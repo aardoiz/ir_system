@@ -18,15 +18,9 @@ git clone git@github.com:aardoiz/ir_system.git
 curl -sSL https://install.python-poetry.org | python3 -
 ```
 
-
 3. Una vez instalado poetry inicializarlo usando poetry install
 ```
 poetry install
-```
-
-3. 1. Si queremos usar el procesador de pdfs hay que instalar una dependencia extra con pip
-```
-pip install pdfminer.six
 ```
 
 4. Para probar el buscador, hay que ejecutar el archivo api.py con pyhton
@@ -39,8 +33,7 @@ python3 api.py
 http://localhost:8425/app
 ```
 
-6. En el front vemos que hay 4 métodos: 1 GET, y 3 POST. Cada uno de los post es un tipo de buscador. Para acceder a ellos, hay que pinchar encima y se abrirá un panel verde. En primer lugar hay una explicación del método; y para probarlo hay que pulsar el botón de "try it out".
-Al pulsarlo se nos abrirá un espacio donde escribir con una "query" de prueba; simplemente tenemos remplazar "string" por lo que queramos buscar. Los resultados aparecen más abajo en la página debajo de "code" y "details".
+6. En el front vemos que hay una caja de texto para introducir búsquedas (inicialmente aparece la oración: "Me gustan las lechugas") y un botón de búsqeuda. Los resultados aparecen abajo como la lista de documentos relevantes y lista de los párrafos que contienen esas palabras.
 
 ## Esquema de funcionamiento
 
@@ -79,7 +72,7 @@ En el buscador de momento solo están cargados los apuntes de las asignaturas de
 - [x] Preparar los diagramas del proyecto
 - [x] Creación de un front temporal para pruebas sencillas
 - [ ] Dockerizar el back
-- [ ] Creación de un front profesional
+- [x] Creación de un front profesional
 - [x] Documentación de uso de back (este Readme)
 - [x] Documentación a nivel de código
 - [ ] Documentación de cara al front profesional
