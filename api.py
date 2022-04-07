@@ -13,6 +13,12 @@ from modules.access_db import Get_data_from_db
 from modules.local_db import Get_local_data
 from modules.models.text_process import Preprocess, html_mark, get_regex
 
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--database', metavar='database', type=str, help="Select how to use the program")
+args = parser.parse_args()
+db = args.database
 
 class Search(BaseModel):
     query: str
@@ -32,11 +38,10 @@ device = device("cuda" if cuda.is_available() else "cpu")
 print(f"Device selected: {device}")
 
 
-# Semantic Searcher
-
-#ToDo: Arrglar esto
-#all_documents_, all_paragraphs_, all_sentences_, all_embedding_ = Get_data_from_db()
-all_documents_, all_paragraphs_, all_sentences_, all_embedding_, _ = Get_local_data()
+if db == 'Mongo':
+    all_documents_, all_paragraphs_, all_sentences_, all_embedding_ = Get_data_from_db()
+else:
+    all_documents_, all_paragraphs_, all_sentences_, all_embedding_, _ = Get_local_data()
 
 
 sentence_transformers_model = (

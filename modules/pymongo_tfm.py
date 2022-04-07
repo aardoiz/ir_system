@@ -3,7 +3,7 @@ import pickle
 from pymongo import MongoClient
 
 
-# url de la base de datos
+# You have to change the cluster and copy your cluster URL
 cluster = "mongodb+srv://aardoiz:M0nG0!_@cluster0.wx3m9.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
 # conectamos a mongo
 client = MongoClient(cluster)
