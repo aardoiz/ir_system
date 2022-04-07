@@ -33,7 +33,7 @@ python3 api.py
 http://localhost:8425/app
 ```
 
-6. En el front vemos que hay una caja de texto para introducir búsquedas (inicialmente aparece la oración: "Me gustan las lechugas") y un botón de búsqueda. Los resultados aparecen abajo como la lista de documentos relevantes y lista de los párrafos que contienen esas palabras. [WIP]
+6. En el front vemos que hay una caja de texto para introducir búsquedas (inicialmente aparece la oración: "lechugas") y dos botones de búsqueda: uno con el motor basado en BM25, y otro con el basado en Cross-encoders. Los resultados aparecen abajo como la lista de documentos relevantes y lista de los párrafos que contienen esas palabras. [WIP] [Introducir imagen]
 
 ## Esquema de funcionamiento
 
