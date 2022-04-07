@@ -3,7 +3,7 @@ import torch
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from pydantic import BaseModel
 from rank_bm25 import BM25Okapi
 from sentence_transformers import CrossEncoder, SentenceTransformer, util
@@ -11,7 +11,7 @@ from torch import cuda, device
 
 from modules.access_db import Get_data_from_db
 from modules.local_db import Get_local_data
-from modules.models.text_process import Preprocess
+from modules.models.text_process import Preprocess, html_mark, get_regex
 
 
 class Search(BaseModel):
@@ -55,41 +55,14 @@ bm25_parragraph = BM25Okapi(tokenized_corpus_paragraph)
 
 
 # Main methods
-@app.get("/")
+@app.get("/app")
 def root():
-    return {"message": "Hello"}
+    return FileResponse("./front/main.html")
 
 
-@app.post("/semantic_similarity")
-def compute_sbert(search: Search) -> dict:
-    """
-    This method does the following steps:
-    - Get the embedding of the input query using a S-BERT models.
-    - Calculate the cosine distance between this embedding and all embeddings pre-computed from the corpus.
-    - Get the 7 phrases with highest similarity score.
-    """
-    input_embeddings = model.encode([search.query], convert_to_tensor=True)
-    cosine_scores = util.cos_sim(input_embeddings, all_embedding_)
-    best = torch.topk(cosine_scores, 7)
-
-    output = []
-    # best[0]-> Score de los topk resultados
-    # best[1]-> Índice de los topk resultados (respecto al corpus)
-    for score, idx in zip(best[0][0], best[1][0]):
-        score = round(float(score), 4)
-        idx = int(idx)
-        output.append(
-            {
-                "Oración": all_sentences_[idx],
-                "Párrafo": all_paragraphs_[idx],
-                "Score": score,
-                "Documento": all_documents_[idx],
-            },
-        )
-
-    out = {}
-    out["resultados"] = output
-    return JSONResponse(content=out)
+@app.get('/favicon.ico')
+async def favicon():
+    return FileResponse("./front/favicon.ico")
 
 
 @app.post("/bm25")
@@ -102,6 +75,8 @@ def compute_bm(search: Search) -> dict:
     - Returns the top-7.
     """
     tokenized_query = Preprocess(search.query).split(" ")
+
+    regex = get_regex(tokenized_query)
 
     doc_scores_sentences = bm25_sentence.get_scores(tokenized_query)
     doc_scores_sentences = np.array(doc_scores_sentences)
@@ -127,7 +102,9 @@ def compute_bm(search: Search) -> dict:
                 "Oración": all_sentences_[idx],
                 "Párrafo": all_paragraphs_[idx],
                 "Score": score,
-                "Documento": all_documents_[idx],
+                "Documento": all_documents_[idx],              
+                "Oración_HTML": html_mark(all_sentences_[idx], regex),
+                "Párrafo_HTML": html_mark(all_paragraphs_[idx], regex)
             }
         )
 
@@ -149,16 +126,11 @@ def compute_crossencoder(search: Search) -> dict:
     - Re-arrange the order in base of the highest new scores.
     """
     tokenized_query = Preprocess(search.query).split(" ")
+    regex = get_regex(tokenized_query)
 
-    doc_scores_sentences = bm25_sentence.get_scores(tokenized_query)
-    doc_scores_sentences = np.array(doc_scores_sentences)
-    # sentence_weigth = 1
-    # doc_scores_sentences = doc_scores_sentences**sentence_weigth
+    doc_scores_sentences = np.array(bm25_sentence.get_scores(tokenized_query))
+    doc_scores_paragraphs = np.array(bm25_parragraph.get_scores(tokenized_query))
 
-    doc_scores_paragraphs = bm25_parragraph.get_scores(tokenized_query)
-    doc_scores_paragraphs = np.array(doc_scores_paragraphs)
-    # paragraph_weight = 1.2
-    # doc_scores_paragraph = doc_scores_paragraph ** paragraph_weight
 
     # Aquí sacamos las score totales con la suma de los dos parámetros combinados
     doc_scores = torch.tensor(np.add(doc_scores_sentences, doc_scores_paragraphs))
@@ -174,7 +146,9 @@ def compute_crossencoder(search: Search) -> dict:
                 "Oración": all_sentences_[idx],
                 "Párrafo": all_paragraphs_[idx],
                 "Score": score,
-                "Documento": all_documents_[idx],
+                "Documento": all_documents_[idx],              
+                "Oración_HTML": html_mark(all_sentences_[idx], regex),
+                "Párrafo_HTML": html_mark(all_paragraphs_[idx], regex)
             },
         )
 
@@ -193,6 +167,8 @@ def compute_crossencoder(search: Search) -> dict:
                 "Párrafo": output[idx]["Párrafo"],
                 "Score": round(float(sim_score[idx]), 2),
                 "Documento": output[idx]["Documento"],
+                "Oración_HTML": html_mark(output[idx]["Oración"], regex),
+                "Párrafo_HTML": html_mark(output[idx]["Párrafo"], regex)
             }
         )
         if count == 5:
