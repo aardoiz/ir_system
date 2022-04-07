@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, FileResponse
 from pydantic import BaseModel
 from rank_bm25 import BM25Okapi
-from sentence_transformers import CrossEncoder, SentenceTransformer, util
+from sentence_transformers import CrossEncoder
 from torch import cuda, device
 
 from modules.access_db import Get_data_from_db
@@ -39,16 +39,12 @@ print(f"Device selected: {device}")
 
 
 if db == 'Mongo':
-    all_documents_, all_paragraphs_, all_sentences_, all_embedding_ = Get_data_from_db()
+    all_documents_, all_paragraphs_, all_sentences_, = Get_data_from_db()
 else:
-    all_documents_, all_paragraphs_, all_sentences_, all_embedding_, _ = Get_local_data()
+    all_documents_, all_paragraphs_, all_sentences_, _ = Get_local_data()
 
 
-sentence_transformers_model = (
-    "eduardofv/stsb-m-mt-es-distiluse-base-multilingual-cased-v1"
-)
 cross_encoder_model = "cross-encoder/ms-marco-MiniLM-L-2-v2"
-model = SentenceTransformer(sentence_transformers_model)
 cross = CrossEncoder(cross_encoder_model)
 
 # Okapi BM25
@@ -181,8 +177,6 @@ def compute_crossencoder(search: Search) -> dict:
 
     out = {}
     out["Resultados"] = real_out
-    # AHORA METEMOS CROSSENCODER
-
     return JSONResponse(content=out)
 
 
