@@ -5,6 +5,8 @@ import nltk
 from nltk.corpus import stopwords
 from nltk.stem import SnowballStemmer
 
+from typing import List
+
 nltk.download("wordnet")
 nltk.download("stopwords")
 nltk.download("omw-1.4")
@@ -40,3 +42,22 @@ def eval_preproces(text:str)->str:
     text = re.sub(r"[^a-zA-Z ,.;:áéíóúãñüÁÉÍçÇÑÓÚ\d]", "", text)
     
     return text
+
+
+def html_mark(text:str, regex:str)-> str:
+    textos = re.findall(regex,text)
+    for group in set(textos):
+        text = text.replace(group, f'<mark>{group}</mark>')
+    return text
+
+
+def get_regex(tokenized_query:List) -> str:
+    regex = ''
+    for i,tok in enumerate(tokenized_query):
+        tok = f'[{tok[0].swapcase()}{tok[0]}]{tok[1:]}'
+        if i != len(tokenized_query)-1:
+            tok = f'{tok}\S*|'
+        else:
+            tok = f'{tok}\S*'
+        regex += tok
+    return regex
