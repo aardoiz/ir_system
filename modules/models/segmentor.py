@@ -2,7 +2,6 @@ import re
 from typing import List
 
 import es_core_news_sm
-from modules.models.document import Document
 
 
 nlp = es_core_news_sm.load()

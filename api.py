@@ -9,7 +9,7 @@ from rank_bm25 import BM25Okapi
 from sentence_transformers import CrossEncoder
 from torch import cuda, device
 
-from modules.access_db import Get_data_from_db
+from modules.mongo_db import Get_data_from_db
 from modules.local_db import Get_local_data
 from modules.models.text_process import Preprocess, html_mark, get_regex
 
@@ -39,9 +39,9 @@ print(f"Device selected: {device}")
 
 
 if db == 'Mongo':
-    all_documents_, all_paragraphs_, all_sentences_, = Get_data_from_db()
+    all_documents_, all_titles_, all_sentences_, = Get_data_from_db()
 else:
-    all_documents_, all_paragraphs_, all_sentences_, _ = Get_local_data()
+    all_documents_, all_titles_, all_sentences_, _ = Get_local_data()
 
 
 cross_encoder_model = "cross-encoder/ms-marco-MiniLM-L-2-v2"
@@ -49,11 +49,7 @@ cross = CrossEncoder(cross_encoder_model)
 
 # Okapi BM25
 tokenized_corpus_sentence = [Preprocess(doc).split(" ") for doc in all_sentences_]
-tokenized_corpus_paragraph = [Preprocess(doc).split(" ") for doc in all_paragraphs_]
-
 bm25_sentence = BM25Okapi(tokenized_corpus_sentence)
-bm25_parragraph = BM25Okapi(tokenized_corpus_paragraph)
-
 
 # Main methods
 @app.get("/app")
@@ -71,26 +67,20 @@ def compute_bm(search: Search) -> dict:
     """
     This method does the following steps:
     - Process the query to get all keywords
-    - Compare this list of keywords with pre-processed corpus sentences and paragraphs.
+    - Get a regex to mark the query in the front
     - Use BM25 to compute the score between the query and each sentence.
-    - Returns the top-7.
+    - Returns the top-7 most similar documents in JSON format.
     """
     tokenized_query = Preprocess(search.query).split(" ")
 
     regex = get_regex(tokenized_query)
 
-    doc_scores_sentences = bm25_sentence.get_scores(tokenized_query)
-    doc_scores_sentences = np.array(doc_scores_sentences)
-    # sentence_weigth = 1
-    # doc_scores_sentences = doc_scores_sentences**sentence_weigth
+    doc_scores = bm25_sentence.get_scores(tokenized_query)
+    doc_scores = np.array(doc_scores)
 
-    doc_scores_paragraphs = bm25_parragraph.get_scores(tokenized_query)
-    doc_scores_paragraphs = np.array(doc_scores_paragraphs)
-    # paragraph_weight = 1.2
-    # doc_scores_paragraph = doc_scores_paragraph ** paragraph_weight
 
-    # Aquí sacamos las score totales con la suma de los dos parámetros combinados
-    doc_scores = torch.tensor(np.add(doc_scores_sentences, doc_scores_paragraphs))
+   
+    doc_scores = torch.tensor(doc_scores)
     best = torch.topk(doc_scores, 7)
     output = []
     for score, idx in zip(best[0], best[1]):
@@ -101,11 +91,11 @@ def compute_bm(search: Search) -> dict:
         output.append(
             {
                 "Oración": all_sentences_[idx],
-                "Párrafo": all_paragraphs_[idx],
+                "Título": all_titles_[idx],
                 "Score": score,
                 "Documento": all_documents_[idx],              
                 "Oración_HTML": html_mark(all_sentences_[idx], regex),
-                "Párrafo_HTML": html_mark(all_paragraphs_[idx], regex)
+                "Título_HTML": html_mark(all_titles_[idx], regex)
             }
         )
 
@@ -119,7 +109,7 @@ def compute_crossencoder(search: Search) -> dict:
     """
     This method does the following steps:
     - Process the query to get all keywords
-    - Compare this list of keywords with pre-processed corpus sentences and paragraphs.
+    - Compare this list of keywords with pre-processed corpus sentences and titles.
     - Use BM25 to compute the score between the query and each sentence.
     - Return the top-7 results.
     - Create a list of strings concatenating the query and each one of the BM25 results.
@@ -129,12 +119,11 @@ def compute_crossencoder(search: Search) -> dict:
     tokenized_query = Preprocess(search.query).split(" ")
     regex = get_regex(tokenized_query)
 
-    doc_scores_sentences = np.array(bm25_sentence.get_scores(tokenized_query))
-    doc_scores_paragraphs = np.array(bm25_parragraph.get_scores(tokenized_query))
+    doc_scores = np.array(bm25_sentence.get_scores(tokenized_query))
 
 
     # Aquí sacamos las score totales con la suma de los dos parámetros combinados
-    doc_scores = torch.tensor(np.add(doc_scores_sentences, doc_scores_paragraphs))
+    doc_scores = torch.tensor(doc_scores)
     best = torch.topk(doc_scores, 7)
     output = []
     for score, idx in zip(best[0], best[1]):
@@ -145,11 +134,11 @@ def compute_crossencoder(search: Search) -> dict:
         output.append(
             {
                 "Oración": all_sentences_[idx],
-                "Párrafo": all_paragraphs_[idx],
+                "Título": all_titles_[idx],
                 "Score": score,
                 "Documento": all_documents_[idx],              
                 "Oración_HTML": html_mark(all_sentences_[idx], regex),
-                "Párrafo_HTML": html_mark(all_paragraphs_[idx], regex)
+                "Título_HTML": html_mark(all_titles_[idx], regex)
             },
         )
 
@@ -165,11 +154,11 @@ def compute_crossencoder(search: Search) -> dict:
         real_out.append(
             {
                 "Oración": output[idx]["Oración"],
-                "Párrafo": output[idx]["Párrafo"],
+                "Título": output[idx]["Título"],
                 "Score": round(float(sim_score[idx]), 2),
                 "Documento": output[idx]["Documento"],
                 "Oración_HTML": html_mark(output[idx]["Oración"], regex),
-                "Párrafo_HTML": html_mark(output[idx]["Párrafo"], regex)
+                "Título_HTML": html_mark(output[idx]["Título"], regex)
             }
         )
         if count == 5:
@@ -178,6 +167,7 @@ def compute_crossencoder(search: Search) -> dict:
     out = {}
     out["Resultados"] = real_out
     return JSONResponse(content=out)
+
 
 
 if __name__ == "__main__":
