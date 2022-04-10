@@ -2,13 +2,10 @@ import re
 from typing import List
 
 import es_core_news_sm
-from models.document import Document
-from sentence_transformers import SentenceTransformer
+
 
 nlp = es_core_news_sm.load()
-model = SentenceTransformer(
-    "eduardofv/stsb-m-mt-es-distiluse-base-multilingual-cased-v1"
-)
+
 
 
 def cleaner(text: str) -> List[str]:
@@ -33,28 +30,3 @@ def cleaner(text: str) -> List[str]:
             new_para.append(processed)
 
     return new_para
-
-
-def sentencizer(paragraph_list: List, subject: str, document: str) -> List[Document]:
-    """
-    Initialize a blank list to store Document Objects.
-    For each paragraph of the input list, divide it into sentences.
-    For each sentence, get the embedding using SBERT and create a Document Object."""
-
-    document_list = []
-    for element in paragraph_list:
-
-        doc = nlp(element)
-        for sent in doc.sents:
-            embeddings = model.encode(sent.text, convert_to_tensor=True)
-
-            a = Document(
-                type=subject,
-                document=document,
-                paragraph=element,
-                sentence=sent.text,
-                embedding=embeddings,
-            )
-            document_list.append(a)
-
-    return document_list

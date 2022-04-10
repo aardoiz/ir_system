@@ -30,7 +30,7 @@
                         <v-sheet min-height="70vh" rounded="lg">
                             <h1 v-if="resultados">Documentos más relevantes</h1>
                             <ul>
-                                <li v-for="item in resultados" :key="item.Documento" v-html="item.Párrafo_HTML"></li>
+                                <li v-for="item in resultados" :key="item.Documento" v-html="item.Título_HTML"></li>
                             </ul>
                             <h2 v-if="resultados">Párrafos</h2>
                             <ul>
