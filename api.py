@@ -143,29 +143,31 @@ def compute_crossencoder(search: Search) -> dict:
         )
 
     combinations = [[search.query, sen["Oración"]] for sen in output]
+    if len(combinations) > 0:
+        sim_score = cross.predict(combinations)
+        sim_score_argsort = reversed(np.argsort(sim_score))
 
-    sim_score = cross.predict(combinations)
-    sim_score_argsort = reversed(np.argsort(sim_score))
+        count = 0
+        real_out = []
+        for idx in sim_score_argsort:
+            count += 1
+            real_out.append(
+                {
+                    "Oración": output[idx]["Oración"],
+                    "Título": output[idx]["Título"],
+                    "Score": round(float(sim_score[idx]), 2),
+                    "Documento": output[idx]["Documento"],
+                    "Oración_HTML": html_mark(output[idx]["Oración"], regex),
+                    "Título_HTML": html_mark(output[idx]["Título"], regex)
+                }
+            )
+            if count == 5:
+                break
 
-    count = 0
-    real_out = []
-    for idx in sim_score_argsort:
-        count += 1
-        real_out.append(
-            {
-                "Oración": output[idx]["Oración"],
-                "Título": output[idx]["Título"],
-                "Score": round(float(sim_score[idx]), 2),
-                "Documento": output[idx]["Documento"],
-                "Oración_HTML": html_mark(output[idx]["Oración"], regex),
-                "Título_HTML": html_mark(output[idx]["Título"], regex)
-            }
-        )
-        if count == 5:
-            break
-
-    out = {}
-    out["Resultados"] = real_out
+        out = {}
+        out["Resultados"] = real_out
+    else:
+        out= {"Resultados":[]}
     return JSONResponse(content=out)
 
 

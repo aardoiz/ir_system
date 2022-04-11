@@ -51,13 +51,15 @@ def html_mark(text:str, regex:str)-> str:
     return text
 
 
-def get_regex(tokenized_query:List) -> str:
+def get_regex(tokenized_query) -> str:
     regex = ''
     for i,tok in enumerate(tokenized_query):
-        tok = f'[{tok[0].swapcase()}{tok[0]}]{tok[1:]}'
+        r_tok = ''
+        for letra in tok:
+            r_tok += f'[{letra}{letra.swapcase()}]'
         if i != len(tokenized_query)-1:
-            tok = f'{tok}\S*|'
+            r_tok = f'{r_tok}\S*|'
         else:
-            tok = f'{tok}\S*'
-        regex += tok
+            r_tok = f'{r_tok}\S*'
+        regex += r_tok
     return regex
