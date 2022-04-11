@@ -18,11 +18,9 @@ def Get_data_from_db() -> Union[List[str], List[str], List[str], List[List]]:
     list_of_titles = []
     list_of_sentences = []
 
-
     for i, document in enumerate(cursor):
         list_of_documents.append(i)
         list_of_titles.append(document["title"])
         list_of_sentences.append(document["content"])
-
 
     return list_of_documents, list_of_titles, list_of_sentences

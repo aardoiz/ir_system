@@ -3,9 +3,7 @@ from typing import List
 
 import es_core_news_sm
 
-
 nlp = es_core_news_sm.load()
-
 
 
 def cleaner(text: str) -> List[str]:
@@ -14,7 +12,7 @@ def cleaner(text: str) -> List[str]:
     Eliminate "<" and ">" markers and its content.
     Eliminate \t.
 
-    Subdivide the text into paragraphs.
+    Subdivide the text into paragraphs. And return a list.
 
     """
     body = re.sub("<script>(?:.+\n|\n)*<\/script>", "", text)

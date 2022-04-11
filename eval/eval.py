@@ -15,16 +15,23 @@ from modules.models.text_process import Preprocess
 class Search(BaseModel):
     query: str
 
+
 device = device("cuda" if cuda.is_available() else "cpu")
 print(f"Device selected: {device}")
 
 
 # Semantic Searcher
 
-#ToDo: Arrglar esto
+# ToDo: Arrglar esto
 
-#all_documents_, all_paragraphs_, all_sentences_, all_embedding_, questions_eval = Get_local_data()
-all_documents_, all_paragraphs_, all_sentences_, all_embedding_, questions_eval = Get_enhanced_data()
+# all_documents_, all_paragraphs_, all_sentences_, all_embedding_, questions_eval = Get_local_data()
+(
+    all_documents_,
+    all_paragraphs_,
+    all_sentences_,
+    all_embedding_,
+    questions_eval,
+) = Get_enhanced_data()
 
 sentence_transformers_model = (
     "eduardofv/stsb-m-mt-es-distiluse-base-multilingual-cased-v1"
@@ -88,7 +95,7 @@ def compute_bm_enhanced(search: Search) -> dict:
     for score, idx in zip(best[0], best[1]):
         idx = int(idx)
         output.append(all_documents_[idx])
-    
+
     new = []
     for x in output:
         if x not in new:
@@ -143,7 +150,6 @@ def compute_crossencoder(search: Search) -> dict:
     sim_score = cross.predict(combinations)
     sim_score_argsort = reversed(np.argsort(sim_score))
 
-
     real_out = []
     for idx in sim_score_argsort:
         real_out.append(output[idx]["Documento"])
@@ -157,15 +163,14 @@ class results_eval(BaseModel):
     bm_response: List[int]
 
 
-
 # Sacar los resultados para el BM25
 resultados = []
 for index, question in enumerate(questions_eval):
-    question = question[1:-1] #quitamos '?' y '¿'
+    question = question[1:-1]  # quitamos '?' y '¿'
     ans = compute_bm_enhanced(question)
-    resultados.append(results_eval(index = index, question=question, bm_response=ans))
+    resultados.append(results_eval(index=index, question=question, bm_response=ans))
 
-with open ('eval/data/resultados_enhanced_bm25.pkl', 'wb') as f:
+with open("eval/data/resultados_enhanced_bm25.pkl", "wb") as f:
     pickle.dump(resultados, f)
 
 

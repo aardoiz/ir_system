@@ -11,4 +11,5 @@ db = client.TFM.DocumentList
 with open("data/pickle/document_list.pkl", "rb") as f:
     docs = pickle.load(f)
 
+# Transfer the data from local to Mongo Servers
 result = db.insert_many(docs)
