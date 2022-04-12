@@ -1,10 +1,9 @@
 import re
+from typing import List
 
 import nltk
 from nltk.corpus import stopwords
 from nltk.stem import SnowballStemmer
-
-from typing import List
 
 nltk.download("wordnet")
 nltk.download("stopwords")
@@ -15,7 +14,7 @@ stop_words = set(stopwords.words("spanish"))
 snowball = SnowballStemmer("spanish")
 
 
-def Preprocess(text: str) -> str:
+def preprocess(text: str) -> str:
     """
     For any text, this function does the following:
         Replace complex expression for unicode chars < >.
@@ -47,7 +46,7 @@ def eval_preproces(text: str) -> str:
     return text
 
 
-def html_mark(text: str, regex: str) -> str:
+def mark_tag_for_html(text: str, regex: str) -> str:
     """
     Function that given a certain text and a regex, search for the regex in the text and replaces it with HTML marks to use in the front.
     """

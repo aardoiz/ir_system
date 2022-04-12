@@ -1,19 +1,19 @@
+import argparse
+
 import numpy as np
 import torch
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
 from rank_bm25 import BM25Okapi
 from sentence_transformers import CrossEncoder
 from torch import cuda, device
 
-from modules.mongo_db import Get_data_from_db
-from modules.local_db import Get_local_data
-from modules.models.text_process import Preprocess, html_mark, get_regex
-
-import argparse
+from modules.local_db import get_local_data
+from modules.mongo_db import get_data_from_db
+from modules.utils.text_process import get_regex, mark_tag_for_html, preprocess
 
 # ArgParse Settings
 parser = argparse.ArgumentParser()
@@ -50,16 +50,16 @@ if db == "Mongo":
         all_documents_,
         all_titles_,
         all_sentences_,
-    ) = Get_data_from_db()
+    ) = get_data_from_db()
 else:
-    all_documents_, all_titles_, all_sentences_, _ = Get_local_data()
+    all_documents_, all_titles_, all_sentences_, _ = get_local_data()
 
 # CrossEncoder Settings
 cross_encoder_model = "cross-encoder/ms-marco-MiniLM-L-2-v2"
 cross = CrossEncoder(cross_encoder_model)
 
 # Okapi BM25 Settings
-tokenized_corpus_sentence = [Preprocess(doc).split(" ") for doc in all_sentences_]
+tokenized_corpus_sentence = [preprocess(doc).split(" ") for doc in all_sentences_]
 bm25_sentence = BM25Okapi(tokenized_corpus_sentence)
 
 # Main methods
@@ -80,7 +80,7 @@ async def favicon():
 
 
 @app.post("/bm25")
-def compute_bm(search: Search) -> dict:
+def compute_bm(search: Search) -> JSONResponse:
     """
     This method does the following steps:
     - Process the query to get all keywords
@@ -89,7 +89,7 @@ def compute_bm(search: Search) -> dict:
     - Returns the top-7 most similar documents in JSON format
     """
 
-    tokenized_query = Preprocess(search.query).split(" ")
+    tokenized_query = preprocess(search.query).split(" ")
     regex = get_regex(tokenized_query)
 
     doc_scores = torch.tensor(np.array(bm25_sentence.get_scores(tokenized_query)))
@@ -107,8 +107,8 @@ def compute_bm(search: Search) -> dict:
                 "Título": all_titles_[idx],
                 "Score": score,
                 "Documento": all_documents_[idx],
-                "Oración_HTML": html_mark(all_sentences_[idx], regex),
-                "Título_HTML": html_mark(all_titles_[idx], regex),
+                "Oración_HTML": mark_tag_for_html(all_sentences_[idx], regex),
+                "Título_HTML": mark_tag_for_html(all_titles_[idx], regex),
             }
         )
 
@@ -118,7 +118,7 @@ def compute_bm(search: Search) -> dict:
 
 
 @app.post("/cross_encoder")
-def compute_crossencoder(search: Search) -> dict:
+def compute_crossencoder(search: Search) -> JSONResponse:
     """
     This method does the following steps:
     - Process the query to get all keywords
@@ -131,7 +131,7 @@ def compute_crossencoder(search: Search) -> dict:
     - Return the top-5 most similar documents in JSON format
     """
 
-    tokenized_query = Preprocess(search.query).split(" ")
+    tokenized_query = preprocess(search.query).split(" ")
     regex = get_regex(tokenized_query)
 
     doc_scores = torch.tensor(np.array(bm25_sentence.get_scores(tokenized_query)))
@@ -149,8 +149,8 @@ def compute_crossencoder(search: Search) -> dict:
                 "Título": all_titles_[idx],
                 "Score": score,
                 "Documento": all_documents_[idx],
-                "Oración_HTML": html_mark(all_sentences_[idx], regex),
-                "Título_HTML": html_mark(all_titles_[idx], regex),
+                "Oración_HTML": mark_tag_for_html(all_sentences_[idx], regex),
+                "Título_HTML": mark_tag_for_html(all_titles_[idx], regex),
             },
         )
 
@@ -169,8 +169,8 @@ def compute_crossencoder(search: Search) -> dict:
                     "Título": output[idx]["Título"],
                     "Score": round(float(sim_score[idx]), 2),
                     "Documento": output[idx]["Documento"],
-                    "Oración_HTML": html_mark(output[idx]["Oración"], regex),
-                    "Título_HTML": html_mark(output[idx]["Título"], regex),
+                    "Oración_HTML": mark_tag_for_html(output[idx]["Oración"], regex),
+                    "Título_HTML": mark_tag_for_html(output[idx]["Título"], regex),
                 }
             )
             if count == 5:

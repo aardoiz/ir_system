@@ -1,16 +1,17 @@
+import os
 import pickle
 import re
-import os
-from pptx import Presentation
+
 import requests
 from bs4 import BeautifulSoup
-
-from modules.models.segmentor import cleaner
-
 from pdfminer.converter import PDFPageAggregator
 from pdfminer.layout import LAParams, LTTextBox
 from pdfminer.pdfinterp import PDFPageInterpreter, PDFResourceManager
 from pdfminer.pdfpage import PDFPage
+from pptx import Presentation
+
+from modules.utils.pickle_loader import load_local
+from modules.utils.segmentor import cleaner
 
 done_path = "data/documentos/done"
 
@@ -28,10 +29,9 @@ def process_pdfs(path: str):
 
     # Stored DataBase check
     boolie = False
-    if len(os.listdir("data/pickle")) > 1:
-        with open("data/pickle/document_list.pkl", "rb") as f:
-            data = pickle.load(f)
-            boolie = True
+    if len(os.listdir("data/pickle")) > 2:
+        data = load_local()
+        boolie = True
 
     # Creation of the document wrapper
     document_list = []
@@ -107,7 +107,7 @@ def process_pdfs(path: str):
         data = document_list
 
     # Create the pkl to use in next step
-    with open("data/pickle/document_list.pkl", "wb") as f:
+    with open("data/pickle/my_data.pkl", "wb") as f:
         pickle.dump(data, f)
 
 
@@ -126,10 +126,9 @@ def process_pptx(path: str):
     salida = []
     folder = os.listdir(path)
     boolie = False
-    if len(os.listdir("data/pickle")) > 1:
-        with open("data/pickle/document_list.pkl", "rb") as f:
-            data = pickle.load(f)
-            boolie = True
+    if len(os.listdir("data/pickle")) > 2:
+        data = load_local()
+        boolie = True
 
     for eachfile in folder:
         if eachfile[-5:] != ".pptx":
@@ -170,7 +169,7 @@ def process_pptx(path: str):
     else:
         data = salida
     # Create the pkl to use in next step
-    with open("data/pickle/document_list.pkl", "wb") as f:
+    with open("data/pickle/my_data.pkl", "wb") as f:
         pickle.dump(data, f)
 
 
@@ -196,12 +195,11 @@ def process_html(url: str):
         if len(cleaner(i)) > 1:
             salida.append({"title": tema, "content": (" ".join(cleaner(i)))})
 
-    if len(os.listdir("data/pickle")) > 1:
-        with open("data/pickle/document_list.pkl", "rb") as f:
-            data = pickle.load(f)
-            salida.extend(data)
+    if len(os.listdir("data/pickle")) > 2:
+        data = load_local()
+        salida.extend(data)
 
-    with open("data/pickle/document_list.pkl", "wb") as f:
+    with open("data/pickle/my_data.pkl", "wb") as f:
         pickle.dump(salida, f)
 
     with open(f"{done_path}/{tema}.txt", "a") as f:
@@ -218,4 +216,4 @@ def process_path(path: str):
         process_pptx(path)
 
 
-process_path("https://ariesco.github.io/OIM/docs/intro.html")
+process_path("data/documentos")

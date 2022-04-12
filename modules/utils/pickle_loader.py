@@ -1,5 +1,6 @@
 import pickle
 
+
 def load_local():
     # Load the local db pickle file
     with open("./data/pickle/my_data.pkl", "rb") as f:

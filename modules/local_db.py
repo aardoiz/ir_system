@@ -1,23 +1,21 @@
-from typing import List, Union
-import pickle
-from modules.models.text_process import eval_preproces
+from typing import List, Tuple
 
+from modules.utils.pickle_loader import load_local, load_sample
+from modules.utils.text_process import eval_preproces
 
 # Load the sample data
-with open("./eval/data/datos_sqac.pkl", "rb") as f:
-    data = pickle.load(f)
+data = load_sample()
 
 # Load the real data stored in pickle folder
 try:
-    with open("./data/pickle/document_list.pkl", "rb") as f:
-        data = pickle.load(f)
-        print("USING LOCAL DATA")
+    data = load_local()
+    print("USING LOCAL DATA")
 
 except Exception as err:
     print("USING SAMPLE DATA")
 
 
-def Get_local_data() -> Union[List[str], List[str], List[str], List[List]]:
+def get_local_data() -> Tuple[List[str], List[str], List[str], List[List]]:
     """
     Use the preloaded data to store its info in python lists and use it on the main script.
     """
@@ -37,40 +35,3 @@ def Get_local_data() -> Union[List[str], List[str], List[str], List[List]]:
             list_of_questions.append([])
 
     return list_of_documents, list_of_titles, list_of_sentences, list_of_questions
-
-
-# Evaluation Data Settings
-eval = False
-
-if eval:
-    with open("eval/data/datos_sqac_enhanced.pkl", "rb") as fl:
-        enhanced = pickle.load(fl)
-
-
-def Get_enhanced_data() -> Union[List[str], List[str], List[str], List[List]]:
-    """
-    Use  the preloaded data to store its info in python lists and use it on the evaluation script.
-    """
-
-    list_of_documents = []
-    list_of_paragraphs = []
-    list_of_sentences = []
-    list_of_embeddings = []
-    list_of_questions = []
-
-    for i, document in enumerate(enhanced):
-        for phrase in document["content"]:
-            list_of_documents.append(i)
-            list_of_paragraphs.append(eval_preproces(document["title"]))
-            list_of_sentences.append(eval_preproces(phrase))
-            list_of_embeddings.append([])
-
-        list_of_questions.append(document["question"])
-
-    return (
-        list_of_documents,
-        list_of_paragraphs,
-        list_of_sentences,
-        list_of_embeddings,
-        list_of_questions,
-    )
