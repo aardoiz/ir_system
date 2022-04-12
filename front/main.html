@@ -33,20 +33,20 @@
                     <v-col class="con_margen">
                         <v-sheet min-height="70vh" rounded="lg">
                             <h1 id="grease" v-if="index > -1">Búsqueda: {{sample.query}}</h1>
-                            <h1 v-if="help">Pequeña Documentación</h1>
-                            <ul v-if="help">
+                            <h1 v-if="help">Documentación del programa</h1>
+                            <ul id="docu" v-if="help">
                                 <li v-for="pista in pistas" v-html="pista"></li>
                             </ul>
                             <h1 v-if="resultados">Documentos más relevantes</h1>
-                            <ul>
+                            <ol>
                                 <li v-for="item in resultados" :key="item.Documento" v-html="item.Título_HTML"></li>
-                                
-                            </ul>
+
+                            </ol>
                             <h2 v-if="resultados">Párrafos</h2>
                             <ul>
                                 <li v-for="item in resultados" :key="item.Documento" v-html="item.Oración_HTML"></li>
                             </ul>
-                            
+
                         </v-sheet>
                     </v-col>
                 </v-container>
@@ -68,27 +68,29 @@
                     },
                     resultados: null,
                     index: -1,
-                    queries:[{"query":"Carrera de coches"}, 
-                    {"query":"Los piratas de Internet"}, 
-                    {"query":"La antigua Roma"}, 
-                    {"query":"El nuevo Super Mario"}, 
-                    {"query":"La semana del cine"},
-                    {"query":"Reino de Castilla"},
-                    {"query":"Los Simpson"},
-                    {"query":"Mejoras en los aviones caza de EEUU"},
-                    {"query":"perros y gatos"},
-                    {"query":"montañas en Europa"},
-                    
+                    queries: [{ "query": "Carrera de coches" },
+                    { "query": "Los piratas de Internet" },
+                    { "query": "La antigua Roma" },
+                    { "query": "El nuevo Super Mario" },
+                    { "query": "La semana del cine" },
+                    { "query": "Reino de Castilla" },
+                    { "query": "Los Simpson" },
+                    { "query": "Mejoras en los aviones caza de EEUU" },
+                    { "query": "perros y gatos" },
+                    { "query": "montañas en Europa" },
+
                     ],
-                    sample:null,
-                    help:null,
-                    pistas:["Esta página web es el acceso a la herramienta IR", 
-                    "En el campo de arriba <b>'búsqueda'</b> se puede elegir que queremos buscar", 
-                    "Actualmente en el sistema se han implementado dos motores de búsqueda", 
-                    "El motor BM25 se basa en un análisis estadístico del corpus de documentos", 
-                    "El motor Hybrid fusiona el enfoque anterior con modernas técnicas de IA",
-                    "Una vez sepamos que se quiere buscar, simplemente hay que pulsar en uno de los dos botones",
-                    "Los resultados de la búsqueda aparecerán en la parte inferior en dos segmentos"]
+                    sample: null,
+                    help: null,
+                    pistas: ["Bienvenidos al Sistema de Recuperación de Información del TFM de Alfonso Ardoiz.",
+                        "Para realizar búsquedas simplemente hay que escribir nuestra 'query' en el campo <b>'búsqueda'</b> y elegir que motor de búsqueda usar.",
+                        "Actualmente en el sistema se han implementado dos motores:",
+                        " - El motor BM25 se basa en un algoritmo matemático para calcular la relevancia de la búsqueda en el corpus de documentos.",
+                        " - El motor Hybrid fusiona el enfoque anterior con modernas técnicas de IA para mejorar la ordenación de los documentos devueltos.",
+                        "Tras pulsar el botón, los resultados de la búsqueda aparecerán en la parte inferior de la página.",
+                        "En primer lugar aparece los documentos más relevantes en orden.",
+                        "Más abajo, nos encontramos con los párrafos de los documentos que incluyen la información específica que estamos buscando. Estos párrafos están 'decorados' para reconocer fácilmente la información importante."
+                    ]
                 }
             },
             methods: {
@@ -120,12 +122,12 @@
                 },
                 random: function () {
                     this.help = null
-                    this.index =  Math.floor(Math.random() * 10)
+                    this.index = Math.floor(Math.random() * 10)
                     this.sample = this.queries[this.index]
                     axios.post("/bm25", this.sample)
                         .then(resp => this.resultados = resp.data.Resultados)
                         .catch(error => console.log(error))
-                        
+
                 },
 
             },
@@ -150,10 +152,16 @@
             font-family: 'Calibri';
         }
 
-        #grease{
+        #grease {
             font-style: italic;
             color: silver;
         }
+
+        #docu {
+            list-style: none;
+        }
+
+
     </style>
 </body>
 
