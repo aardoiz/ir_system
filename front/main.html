@@ -40,13 +40,12 @@
                             <h1 v-if="resultados">Documentos más relevantes</h1>
                             <ol>
                                 <li v-for="item in resultados" :key="item.Documento" v-html="item.Título_HTML"></li>
-                                
                             </ol>
                             <h2 v-if="resultados">Párrafos</h2>
                             <ul>
                                 <li v-for="item in resultados" :key="item.Documento" v-html="item.Oración_HTML"></li>
                             </ul>
-                            
+
                         </v-sheet>
                     </v-col>
                 </v-container>
@@ -68,20 +67,21 @@
                     },
                     resultados: null,
                     index: -1,
-                    queries:[{"query":"Carrera de coches"}, 
-                    {"query":"Los piratas de Internet"}, 
-                    {"query":"La antigua Roma"}, 
-                    {"query":"El nuevo Super Mario"}, 
-                    {"query":"La semana del cine"},
-                    {"query":"Reino de Castilla"},
-                    {"query":"Los Simpson"},
-                    {"query":"Mejoras en los aviones caza de EEUU"},
-                    {"query":"perros y gatos"},
-                    {"query":"montañas en Europa"},
-                    
+                    queries: [{ "query": "Carrera de coches" },
+                    { "query": "Los piratas de Internet" },
+                    { "query": "La antigua Roma" },
+                    { "query": "El nuevo Super Mario" },
+                    { "query": "La semana del cine" },
+                    { "query": "Reino de Castilla" },
+                    { "query": "Los Simpson" },
+                    { "query": "Mejoras en los aviones caza de EEUU" },
+                    { "query": "perros y gatos" },
+                    { "query": "montañas en Europa" },
+
                     ],
-                    sample:null,
-                    help:null,
+
+                    sample: null,
+                    help: null,
                     pistas: ["Bienvenidos al Sistema de Recuperación de Información del TFM de Alfonso Ardoiz.",
                         "Para realizar búsquedas simplemente hay que escribir nuestra 'query' en el campo <b>'búsqueda'</b> y elegir que motor de búsqueda usar.",
                         "Actualmente en el sistema se han implementado dos motores:",
@@ -122,12 +122,12 @@
                 },
                 random: function () {
                     this.help = null
-                    this.index =  Math.floor(Math.random() * 10)
+                    this.index = Math.floor(Math.random() * 10)
                     this.sample = this.queries[this.index]
                     axios.post("/bm25", this.sample)
                         .then(resp => this.resultados = resp.data.Resultados)
                         .catch(error => console.log(error))
-                        
+
                 },
 
             },
@@ -152,7 +152,7 @@
             font-family: 'Calibri';
         }
 
-        #grease{
+        #grease {
             font-style: italic;
             color: silver;
         }
