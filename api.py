@@ -1,30 +1,34 @@
+import argparse
+
 import numpy as np
 import torch
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
 from rank_bm25 import BM25Okapi
 from sentence_transformers import CrossEncoder
 from torch import cuda, device
 
-from modules.mongo_db import Get_data_from_db
-from modules.local_db import Get_local_data
-from modules.models.text_process import Preprocess, html_mark, get_regex
+from modules.local_db import get_local_data
+from modules.mongo_db import get_data_from_db
+from modules.utils.text_process import get_regex, mark_tag_for_html, preprocess
 
-import argparse
-
+# ArgParse Settings
 parser = argparse.ArgumentParser()
-parser.add_argument('--database', metavar='database', type=str, help="Select how to use the program")
+parser.add_argument(
+    "--database", metavar="database", type=str, help="Write Mongo if you want to use it"
+)
 args = parser.parse_args()
 db = args.database
+
 
 class Search(BaseModel):
     query: str
 
 
-# FastAPI  Settings
+# FastAPI Settings
 app = FastAPI()
 CORS_ORIGINS = ["*"]
 app.add_middleware(
@@ -34,54 +38,63 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# GPU Settings
 device = device("cuda" if cuda.is_available() else "cpu")
 print(f"Device selected: {device}")
 
 
-if db == 'Mongo':
-    all_documents_, all_titles_, all_sentences_, = Get_data_from_db()
+# DataBase Settings
+if db == "Mongo":
+    (
+        all_documents_,
+        all_titles_,
+        all_sentences_,
+    ) = get_data_from_db()
 else:
-    all_documents_, all_titles_, all_sentences_, _ = Get_local_data()
+    all_documents_, all_titles_, all_sentences_, _ = get_local_data()
 
-
+# CrossEncoder Settings
 cross_encoder_model = "cross-encoder/ms-marco-MiniLM-L-2-v2"
 cross = CrossEncoder(cross_encoder_model)
 
-# Okapi BM25
-tokenized_corpus_sentence = [Preprocess(doc).split(" ") for doc in all_sentences_]
+# Okapi BM25 Settings
+tokenized_corpus_sentence = [preprocess(doc).split(" ") for doc in all_sentences_]
 bm25_sentence = BM25Okapi(tokenized_corpus_sentence)
 
 # Main methods
 @app.get("/app")
 def root():
+    """
+    Main method of the program, call the front service and allows user to interact using it.
+    """
     return FileResponse("./front/main.html")
 
 
-@app.get('/favicon.ico')
+@app.get("/favicon.ico")
 async def favicon():
+    """
+    Returns an icon file to use as page favicon.
+    """
     return FileResponse("./front/favicon.ico")
 
 
 @app.post("/bm25")
-def compute_bm(search: Search) -> dict:
+def compute_bm(search: Search) -> JSONResponse:
     """
     This method does the following steps:
     - Process the query to get all keywords
     - Get a regex to mark the query in the front
-    - Use BM25 to compute the score between the query and each sentence.
-    - Returns the top-7 most similar documents in JSON format.
+    - Use BM25 to compute the score between the query and each document of the database
+    - Returns the top-7 most similar documents in JSON format
     """
-    tokenized_query = Preprocess(search.query).split(" ")
 
+    tokenized_query = preprocess(search.query).split(" ")
     regex = get_regex(tokenized_query)
 
-    doc_scores = bm25_sentence.get_scores(tokenized_query)
-    doc_scores = np.array(doc_scores)
-
-
-   
-    doc_scores = torch.tensor(doc_scores)
+    doc_scores = torch.tensor(np.array(bm25_sentence.get_scores(tokenized_query)))
     best = torch.topk(doc_scores, 7)
+
     output = []
     for score, idx in zip(best[0], best[1]):
         idx = int(idx)
@@ -93,9 +106,9 @@ def compute_bm(search: Search) -> dict:
                 "Oración": all_sentences_[idx],
                 "Título": all_titles_[idx],
                 "Score": score,
-                "Documento": all_documents_[idx],              
-                "Oración_HTML": html_mark(all_sentences_[idx], regex),
-                "Título_HTML": html_mark(all_titles_[idx], regex)
+                "Documento": all_documents_[idx],
+                "Oración_HTML": mark_tag_for_html(all_sentences_[idx], regex),
+                "Título_HTML": mark_tag_for_html(all_titles_[idx], regex),
             }
         )
 
@@ -105,26 +118,25 @@ def compute_bm(search: Search) -> dict:
 
 
 @app.post("/cross_encoder")
-def compute_crossencoder(search: Search) -> dict:
+def compute_crossencoder(search: Search) -> JSONResponse:
     """
     This method does the following steps:
     - Process the query to get all keywords
-    - Compare this list of keywords with pre-processed corpus sentences and titles.
-    - Use BM25 to compute the score between the query and each sentence.
-    - Return the top-7 results.
+    - Get a regex to mark the query in the front
+    - Use BM25 to compute the score between the query and each document of the database
+    - Returns the top-7 most similar documents
     - Create a list of strings concatenating the query and each one of the BM25 results.
-    - Compute the cross-encoder score for each concatenated string.
-    - Re-arrange the order in base of the highest new scores.
+    - Compute the cross-encoder score for each concatenated string
+    - Re-arrange the order in base of the highest new scores
+    - Return the top-5 most similar documents in JSON format
     """
-    tokenized_query = Preprocess(search.query).split(" ")
+
+    tokenized_query = preprocess(search.query).split(" ")
     regex = get_regex(tokenized_query)
 
-    doc_scores = np.array(bm25_sentence.get_scores(tokenized_query))
-
-
-    # Aquí sacamos las score totales con la suma de los dos parámetros combinados
-    doc_scores = torch.tensor(doc_scores)
+    doc_scores = torch.tensor(np.array(bm25_sentence.get_scores(tokenized_query)))
     best = torch.topk(doc_scores, 7)
+
     output = []
     for score, idx in zip(best[0], best[1]):
         idx = int(idx)
@@ -136,9 +148,9 @@ def compute_crossencoder(search: Search) -> dict:
                 "Oración": all_sentences_[idx],
                 "Título": all_titles_[idx],
                 "Score": score,
-                "Documento": all_documents_[idx],              
-                "Oración_HTML": html_mark(all_sentences_[idx], regex),
-                "Título_HTML": html_mark(all_titles_[idx], regex)
+                "Documento": all_documents_[idx],
+                "Oración_HTML": mark_tag_for_html(all_sentences_[idx], regex),
+                "Título_HTML": mark_tag_for_html(all_titles_[idx], regex),
             },
         )
 
@@ -157,8 +169,8 @@ def compute_crossencoder(search: Search) -> dict:
                     "Título": output[idx]["Título"],
                     "Score": round(float(sim_score[idx]), 2),
                     "Documento": output[idx]["Documento"],
-                    "Oración_HTML": html_mark(output[idx]["Oración"], regex),
-                    "Título_HTML": html_mark(output[idx]["Título"], regex)
+                    "Oración_HTML": mark_tag_for_html(output[idx]["Oración"], regex),
+                    "Título_HTML": mark_tag_for_html(output[idx]["Título"], regex),
                 }
             )
             if count == 5:
@@ -167,9 +179,8 @@ def compute_crossencoder(search: Search) -> dict:
         out = {}
         out["Resultados"] = real_out
     else:
-        out= {"Resultados":[]}
+        out = {"Resultados": []}
     return JSONResponse(content=out)
-
 
 
 if __name__ == "__main__":

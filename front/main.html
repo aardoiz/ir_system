@@ -40,7 +40,6 @@
                             <h1 v-if="resultados">Documentos más relevantes</h1>
                             <ol>
                                 <li v-for="item in resultados" :key="item.Documento" v-html="item.Título_HTML"></li>
-
                             </ol>
                             <h2 v-if="resultados">Párrafos</h2>
                             <ul>
@@ -80,6 +79,7 @@
                     { "query": "montañas en Europa" },
 
                     ],
+
                     sample: null,
                     help: null,
                     pistas: ["Bienvenidos al Sistema de Recuperación de Información del TFM de Alfonso Ardoiz.",
@@ -160,8 +160,6 @@
         #docu {
             list-style: none;
         }
-
-
     </style>
 </body>
 
