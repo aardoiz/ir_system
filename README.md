@@ -68,6 +68,10 @@ Por último, se pueden almacenar los datos en nuestra cuenta de MongoDB, dotando
 ## Datos actuales
 Actualmente el programa usa la base de datos de muestra, dónde está cargado el corpus usado para evaluar el sistema.
 
+## Interfaz de usuario
+La interfaz de usuario se ha diseñado con especial cuidado para que sea fácil de entender y de usar. El usuario cuenta con un campo de texto en el que introducir las búsquedas, un botón para usar el buscador basado en el algoritmo BM25, otro botón para el buscador basado en Cross-Encoder; y dos botones más para ayudar al usuario. 
+![Front](data/img/front_ejemplo.png?raw=true "Interfaz gráfica del buscador")
+
 ## To Do List
 
 - [x] Reestructurar el proyecto
