@@ -41,6 +41,7 @@ platformdirs==2.5.1
 preshed
 pycparser==2.21
 pydantic
+pymongo
 pyparsing
 python-dotenv
 python-pptx
