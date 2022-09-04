@@ -1,7 +1,6 @@
 import argparse
 
 import numpy as np
-import torch
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -9,10 +8,9 @@ from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
 from rank_bm25 import BM25Okapi
 from sentence_transformers import CrossEncoder
-from torch import cuda, device
+from torch import cuda, device, tensor, topk
 
 from modules.local_db import get_local_data
-from modules.mongo_db import get_data_from_db
 from modules.utils.text_process import get_regex, mark_tag_for_html, preprocess
 
 # ArgParse Settings
@@ -45,17 +43,10 @@ print(f"Device selected: {device}")
 
 
 # DataBase Settings
-if db == "Mongo":
-    (
-        all_documents_,
-        all_titles_,
-        all_sentences_,
-    ) = get_data_from_db()
-else:
-    all_documents_, all_titles_, all_sentences_, _ = get_local_data()
+all_documents_, all_titles_, all_sentences_, _ = get_local_data()
 
 # CrossEncoder Settings
-cross_encoder_model = "cross-encoder/ms-marco-MiniLM-L-2-v2"
+cross_encoder_model = "cross-encoder/mmarco-mMiniLMv2-L12-H384-v1"
 cross = CrossEncoder(cross_encoder_model)
 
 # Okapi BM25 Settings
@@ -92,20 +83,20 @@ def compute_bm(search: Search) -> JSONResponse:
     tokenized_query = preprocess(search.query).split(" ")
     regex = get_regex(tokenized_query)
 
-    doc_scores = torch.tensor(np.array(bm25_sentence.get_scores(tokenized_query)))
-    best = torch.topk(doc_scores, 7)
+    doc_scores = tensor(np.array(bm25_sentence.get_scores(tokenized_query)))
+    best = topk(doc_scores, 7)
+    print(best)
 
     output = []
-    for score, idx in zip(best[0], best[1]):
-        idx = int(idx)
-        score = round(float(score), 4)
-        if score == 0.0:
+    for i in best:
+        if int(i[0]) == 0:
             continue
+        idx = int(i[1])
+
         output.append(
             {
                 "Oración": all_sentences_[idx],
                 "Título": all_titles_[idx],
-                "Score": score,
                 "Documento": all_documents_[idx],
                 "Oración_HTML": mark_tag_for_html(all_sentences_[idx], regex),
                 "Título_HTML": mark_tag_for_html(all_titles_[idx], regex),
@@ -134,8 +125,8 @@ def compute_crossencoder(search: Search) -> JSONResponse:
     tokenized_query = preprocess(search.query).split(" ")
     regex = get_regex(tokenized_query)
 
-    doc_scores = torch.tensor(np.array(bm25_sentence.get_scores(tokenized_query)))
-    best = torch.topk(doc_scores, 7)
+    doc_scores = tensor(np.array(bm25_sentence.get_scores(tokenized_query)))
+    best = topk(doc_scores, 7)
 
     output = []
     for score, idx in zip(best[0], best[1]):
