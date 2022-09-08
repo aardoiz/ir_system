@@ -5,10 +5,10 @@ from modules.utils.text_process import eval_preproces
 
 # Load the sample data
 data = load_sample()
-
+print(len(data))
 # Load the real data stored in pickle folder
 try:
-    data = load_local()
+    #data = load_local()
     print("USING LOCAL DATA")
 
 except Exception as err:

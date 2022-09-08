@@ -786,7 +786,7 @@ telegram = ["requests"]
 
 [[package]]
 name = "transformers"
-version = "4.21.2"
+version = "4.21.3"
 description = "State-of-the-art Machine Learning for JAX, PyTorch and TensorFlow"
 category = "main"
 optional = false

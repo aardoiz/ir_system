@@ -10,6 +10,8 @@ from rank_bm25 import BM25Okapi
 from sentence_transformers import CrossEncoder
 from torch import cuda, device, tensor, topk
 
+from time import time
+
 from modules.local_db import get_local_data
 from modules.utils.text_process import get_regex, mark_tag_for_html, preprocess
 
@@ -79,13 +81,13 @@ def compute_bm(search: Search) -> JSONResponse:
     - Use BM25 to compute the score between the query and each document of the database
     - Returns the top-7 most similar documents in JSON format
     """
-
+    initi = time()
     tokenized_query = preprocess(search.query).split(" ")
     regex = get_regex(tokenized_query)
 
     doc_scores = tensor(np.array(bm25_sentence.get_scores(tokenized_query)))
     best = topk(doc_scores, 7)
-    print(best)
+    print(time()-initi)
 
     output = []
     for i in best:
