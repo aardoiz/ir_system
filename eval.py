@@ -16,7 +16,6 @@ from time import time
 device = device("cuda" if cuda.is_available() else "cpu")
 print(f"Device selected: {device}")
 
-
 all_documents_, all_sentences_, questions_eval = get_eval_data()
 
 cross_encoder_model = "cross-encoder/mmarco-mMiniLMv2-L12-H384-v1"
@@ -25,7 +24,6 @@ cross = CrossEncoder(cross_encoder_model, device=device)
 # Okapi BM25
 tokenized_corpus_sentence = [e_preprocess(doc).split(" ") for doc in all_sentences_]
 bm25_sentence = BM25Okapi(tokenized_corpus_sentence)
-
 
 
 def compute_bm(search: str) -> dict:
@@ -111,6 +109,7 @@ for index, question in enumerate(questions_eval):
 with open ('data/pickle/resultados_bm25_no_stops.pkl', 'wb') as f: 
     pickle.dump(resultados, f)
 """
+
 inicio = time()
 # Sacar los resultados para el Cross-encoder
 resultados = []
@@ -118,7 +117,7 @@ for index, question in enumerate(questions_eval):
     if index%250 == 0:
         print(index)
         print(inicio-time())
-    question = question[1:-1] #quitamos '?' y '¿'
+    question = question #quitamos '?' y '¿'
     ans = compute_crossencoder(question)
     resultados.append(results_eval(index = index, question=question, bm_response=ans))
 
