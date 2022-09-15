@@ -3,11 +3,18 @@ Autor: Alfonso Ardoiz Galaz
 
 Máster: Letras Digitales UCM
 
-Título: Sistema de Recuperación de Documentos en español, propuesta de una nueva herramienta e-learning.
+Título: Propuesta de arquitectura para sistemas híbridos de Recuperación de Información en español.
 
 ## Pasos a seguir
-0. (Hasta meter docker) Crear un entorno virtual nuevo y activarlo
+0. Crear un entorno virtual nuevo con python 3.7+ y activarlo
+```
+python -m venv ruta\del\entorno\virtual
+```
 
+```
+source ruta\del\entorno\virtual\bin\activate # Linux
+ruta\del\entorno\virtual\Scripts\activate # Windows
+```
 1. Clonar este repositorio y colocarse en su carpeta principal
 ```
 git clone git@github.com:aardoiz/ir_system.git
@@ -36,7 +43,7 @@ py api.py
 http://localhost:8425/app
 ```
 
-6. En el front vemos que hay una caja de texto para introducir búsquedas (inicialmente aparece la oración: "lechugas") y dos botones de búsqueda: uno con el motor basado en BM25, y otro con el basado en Cross-encoders. Los resultados aparecen abajo como la lista de documentos relevantes y lista de los párrafos que contienen esas palabras. 
+6. En el front vemos que hay una caja de texto para introducir búsquedas (inicialmente aparece la oración: "Astronautas") y dos botones de búsqueda: uno con un SRI simple basado en BM25, y otro con el SRI híbrido basado en Cross-encoders. Los resultados de las búsquedas apareceran abajo como una lista de documentos relevantes. 
 
 
 7. Si queremos procesar documentos personales, hay que editar la linea **219** del archivo "document_parser.py", dónde hay que incluir la ruta de la carpeta de archivos que queremos procesar. Si queremos procesar una página web, simplemente hay que escribir su URL en la misma línea. (Por el momento el programa solo puede procesar archivos .pdf, archivos .pptx y archivos .html)
@@ -66,7 +73,7 @@ La salida de este procesamiento se almacena en la base de datos local, y los doc
 Por último, se pueden almacenar los datos en nuestra cuenta de MongoDB, dotando al programa de portabilidad. Este paso es totalmente opcional.
 
 ## Datos actuales
-Actualmente el programa usa la base de datos de muestra, dónde está cargado el corpus usado para evaluar el sistema.
+Actualmente el programa usa la base de datos de muestra, dónde está cargado el corpus "RISQAC" usado para evaluar el sistema.
 
 ## Interfaz de usuario
 La interfaz de usuario se ha diseñado con especial cuidado para que sea fácil de entender y de usar. El usuario cuenta con un campo de texto en el que introducir las búsquedas, un botón para usar el buscador basado en el algoritmo BM25, otro botón para el buscador basado en Cross-Encoder; y dos botones más para ayudar al usuario. 
@@ -79,7 +86,6 @@ La interfaz de usuario se ha diseñado con especial cuidado para que sea fácil 
 - [x] Ajustar las dependencias con la base de datos
 - [x] Preparar los diagramas del proyecto
 - [x] Creación de un front temporal del buscador
-- [ ] Dockerizar el proyecto
 - [x] Creación de un front profesional
 - [x] Documentación de uso de front (este Readme)
 - [x] Documentación a nivel de código
